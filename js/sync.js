@@ -81,7 +81,9 @@ export function crearSync({
   async function http(ruta, { method = 'GET', cuerpo, cabeceras = {}, auth = true } = {}) {
     await cargarEst();
     if (!est.config) throw new Error('Falta la conexión con Supabase');
-    const { url, key } = est.config;
+    const { key } = est.config;
+    let url = est.config.url; // configuraciones guardadas antes de limpiar la URL pueden llevar /rest/v1/
+    try { url = new URL(url).origin; } catch { /* se deja tal cual */ }
     if (auth) await releer();
     const hacer = () => fetchFn(url.replace(/\/$/, '') + ruta, {
       method,

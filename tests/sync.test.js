@@ -359,3 +359,12 @@ test('si de verdad ha caducado, se pide entrar de nuevo', async () => {
   const r = await crearSync({ adaptador, fetchFn: srv.fetchFn, programar: () => 0 }).sincronizar();
   assert.match(r.error, /caducado/);
 });
+
+test('una configuración guardada con /rest/v1/ también funciona', async () => {
+  const srv = falso();
+  const adaptador = adaptadorMemoria();
+  await adaptador.escribir('_sync', { config: { url: 'https://demo.supabase.co/rest/v1/', key: 'k'.repeat(40) }, sesion: null, cola: [] });
+  const sync = crearSync({ adaptador, fetchFn: srv.fetchFn, programar: () => 0 });
+  await sync.entrar('paula@ejemplo.com', 'secreto', { registrar: true });
+  assert.equal((await sync.estado()).conectado, true);
+});
