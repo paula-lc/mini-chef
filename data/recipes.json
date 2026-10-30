@@ -127,9 +127,9 @@
     {
       "id": "pizza-bagel", "nombre": "Pizza bagel", "tipo": "plato", "estado": "borrador",
       "raciones": 2, "peso_cocinado_g": 495,
-      "notas": "2 bagels proteicos (210 g cocinados) con tomate, mozzarella light y pavo.",
+      "notas": "2 bagels comprados (190 g) con tomate, mozzarella light y pavo.",
       "ingredientes": [
-        { "ref_tipo": "receta", "ref_id": "bagel-proteico", "gramos": 210, "escala_pareja": true },
+        { "ref_tipo": "producto", "ref_id": "bagel", "gramos": 190, "modo": "crudo", "escala_pareja": true },
         { "ref_tipo": "producto", "ref_id": "tomate-triturado", "gramos": 100, "modo": "crudo", "escala_pareja": false },
         { "ref_tipo": "producto", "ref_id": "mozzarella-light", "gramos": 125, "modo": "crudo", "escala_pareja": false },
         { "ref_tipo": "producto", "ref_id": "pechuga-pavo-lonchas", "gramos": 60, "modo": "crudo", "escala_pareja": false }

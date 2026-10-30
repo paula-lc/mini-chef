@@ -1,4 +1,4 @@
-import { h, fmt, num, vaciar, aviso, hoja, macrosChips, montar } from '../ui.js';
+import { h, fmt, eur, num, vaciar, aviso, hoja, macrosChips, montar } from '../ui.js';
 import { datos, ctx, guardar, borrar } from '../store.js';
 import { calcularRaciones, totalesReceta, esIndividual } from '../calc.js';
 import { faseCiclo, FASES, entrenoEl } from '../progreso.js';
@@ -17,6 +17,99 @@ function barra(etiqueta, texto, valor, escala, estado, marca) {
     h('div', { class: 'pista' },
       h('div', { class: `relleno ${estado}`, style: `width:${pct}%` }),
       marca != null && h('div', { class: 'marca', style: `left:${Math.min(100, (marca / escala) * 100)}%` })));
+}
+
+
+const nombreIng = (i) => (i.ref_tipo === 'receta' ? datos.recetas.get(i.ref_id) : datos.productos.get(i.ref_id))?.nombre ?? i.ref_id;
+
+/** Hoja para elegir un ingrediente (producto o componente). Llama a `alElegir(ingrediente)` con una cantidad inicial razonable. */
+function elegirIngrediente(alElegir) {
+  return hoja('Añadir ingrediente', (cerrar) => {
+    const lst = h('div', { class: 'lista compacta' });
+    const q = h('input', { class: 'buscar', type: 'search', placeholder: 'Buscar producto…' });
+    const pintarLista = () => {
+      vaciar(lst);
+      const t = q.value.trim().toLowerCase();
+      const prods = [...datos.productos.values()].filter((x) => x.nombre.toLowerCase().includes(t));
+      const comps = [...datos.recetas.values()].filter((x) => x.tipo === 'componente' && x.nombre.toLowerCase().includes(t));
+      for (const x of [...comps.map((c) => ({ c })), ...prods.map((p) => ({ p }))].sort((a, b) => (a.c || a.p).nombre.localeCompare((b.c || b.p).nombre, 'es')).slice(0, 40)) {
+        const it = x.c || x.p;
+        lst.append(h('button', {
+          class: 'opcion', type: 'button',
+          onclick: () => {
+            cerrar();
+            alElegir(x.c
+              ? { ref_tipo: 'receta', ref_id: it.id, gramos: 100, modo: 'crudo', escala_pareja: false }
+              : { ref_tipo: 'producto', ref_id: it.id, gramos: it.unidad_g || 100, modo: 'crudo', escala_pareja: false });
+          },
+        }, h('span', {}, it.nombre), h('span', { class: 'sub' }, x.c ? 'componente' : it.unidad_g ? `1 ud ≈ ${fmt(it.unidad_g)} g` : `${fmt(it.kcal)} kcal/100 g`)));
+      }
+    };
+    q.addEventListener('input', pintarLista);
+    pintarLista();
+    return h('div', {}, q, lst);
+  });
+}
+
+/**
+ * Formulario de una receta al registrarla en el día. Recetas de una ración: se ven y se pueden
+ * cambiar/quitar/añadir sus ingredientes (gramos exactos). Recetas de olla: gramos de tu ración
+ * más extras opcionales (un huevo, más queso…). `previo` = entrada existente al editarla.
+ */
+function formReceta(item, previo, alGuardar) {
+  const indiv = esIndividual(item);
+  const clave = indiv ? 'raciones' : 'gramos';
+  let ings = indiv ? structuredClone(previo?.ingredientes ?? item.ingredientes ?? []) : null;
+  const extras = structuredClone(previo?.extras ?? []);
+  let inicial = previo ? previo[clave] : '';
+  if (!previo) {
+    if (indiv) inicial = 1;
+    else if (item.peso_cocinado_g > 0) {
+      const r = calcularRaciones(item, totalesReceta(item, ctx), { modo: 'kcal', kcal: datos.ajustes.kcal_tupper, mult: datos.ajustes.multiplicador_pareja });
+      if (r) inicial = Math.round(r.gramos_tupper);
+    }
+  }
+  const entrada = h('input', { class: 'entrada grande-in', type: 'text', inputmode: 'decimal', placeholder: '0', value: String(inicial ?? '').replace('.', ',') });
+  const prev = h('div', { class: 'resultado' });
+  const ok = h('button', { class: 'btn', type: 'button' }, 'Guardar');
+  const borrador = () => ({ tipo: 'receta', ref_id: item.id, [clave]: num(entrada.value), ...(indiv ? { ingredientes: ings } : {}), extras });
+  const actualizar = () => {
+    const m = num(entrada.value) > 0 ? macrosEntrada(borrador(), ctx) : null;
+    vaciar(prev);
+    prev.append(m ? macrosChips(m) : h('p', { class: 'ayuda' }, 'Escribe una cantidad válida.'), m && h('p', { class: 'sub' }, `Coste ${eur(m.coste)}`));
+    ok.disabled = !m;
+  };
+  const filas = (arr, cont) => {
+    vaciar(cont);
+    if (!arr.length) cont.append(h('p', { class: 'ayuda' }, 'Nada todavía.'));
+    else cont.append(h('ul', { class: 'ingredientes' }, arr.map((i, k) => h('li', {},
+      h('div', { class: 'ing-nombre' }, nombreIng(i)),
+      h('div', { class: 'ing-edit' },
+        h('input', {
+          class: 'entrada', type: 'text', inputmode: 'decimal', value: String(i.gramos).replace('.', ','), 'aria-label': `Gramos de ${nombreIng(i)}`,
+          oninput: (e) => { i.gramos = num(e.target.value) || 0; actualizar(); },
+        }), h('span', {}, 'g')),
+      h('button', { class: 'btn-icono', type: 'button', 'aria-label': `Quitar ${nombreIng(i)}`, onclick: () => { arr.splice(k, 1); filas(arr, cont); actualizar(); } }, '✕')))));
+    cont.append(h('button', {
+      class: 'btn secundario', type: 'button',
+      onclick: () => elegirIngrediente((ing) => { arr.push(ing); filas(arr, cont); actualizar(); }),
+    }, '＋ Añadir ingrediente'));
+  };
+  const contIngs = h('div');
+  const contExtras = h('div');
+  if (indiv) filas(ings, contIngs); else filas(extras, contExtras);
+  ok.addEventListener('click', () => alGuardar(borrador()));
+  entrada.addEventListener('input', actualizar);
+  const r = h('div', {},
+    h('label', {}, indiv ? 'Raciones (1 = la ración entera)' : 'Gramos cocinados que te sirves'),
+    entrada,
+    !indiv && !previo && inicial && h('p', { class: 'sub' }, `Sugerido: tupper de ${fmt(datos.ajustes.kcal_tupper)} kcal.`),
+    h('h3', { class: 'titulo-paso' }, indiv ? 'Ingredientes de esta ración' : 'Extras (por ejemplo un huevo)'),
+    indiv && h('p', { class: 'sub' }, 'Cambia los gramos, quita o añade lo que hayas puesto hoy. La receta original no cambia.'),
+    indiv ? contIngs : contExtras,
+    prev, ok);
+  actualizar();
+  return r;
 }
 
 export function hoy(root, { fecha } = {}) {
@@ -65,6 +158,16 @@ export function hoy(root, { fecha } = {}) {
     };
 
     const paso2 = (tipo, item) => {
+      if (tipo === 'receta') {
+        vaciar(cuerpo);
+        montar(cuerpo,
+          h('button', { class: 'btn secundario', type: 'button', onclick: () => elegir(tipo) }, '‹ Volver'),
+          h('h3', { class: 'titulo-paso' }, item.nombre),
+          formReceta(item, null, (d) => {
+            try { meter([crearEntrada({ comida, ...d }, ctx)]); } catch (e) { aviso(e.message, 'error'); }
+          }));
+        return;
+      }
       let modo = 'crudo';
       let sugerido = '';
       const porRaciones = tipo === 'receta' && esIndividual(item); // café, tostada…: se cuenta en raciones, sin pesar
@@ -191,6 +294,16 @@ export function hoy(root, { fecha } = {}) {
 
   /* ---------- Editar gramos ---------- */
   const editar = (e) => hoja(e.nombre, (cerrar) => {
+    if (e.tipo === 'receta' && ctx.receta(e.ref_id)) {
+      return formReceta(ctx.receta(e.ref_id), e, (d) => {
+        const macros = macrosEntrada(d, ctx);
+        if (!macros) return aviso('No se pueden calcular los macros', 'error');
+        Object.assign(e, { raciones: d.raciones ?? null, gramos: d.gramos ?? null, ingredientes: d.ingredientes ?? null, extras: d.extras?.length ? d.extras : null, macros });
+        persistir();
+        cerrar();
+        pintar();
+      });
+    }
     const entrada = h('input', { class: 'entrada grande-in', type: 'text', inputmode: 'decimal', value: coma(e.raciones ?? e.gramos) });
     const clave = e.raciones != null ? 'raciones' : 'gramos';
     return h('div', {},
@@ -270,7 +383,10 @@ export function hoy(root, { fecha } = {}) {
                 ? h('span', {}, e.nombre)
                 : h('button', { class: 'enlace-btn', type: 'button', onclick: () => editar(e) }, e.nombre),
               h('span', { class: 'sub bloque' },
-                `${e.raciones ? `${fmt(e.raciones, e.raciones % 1 ? 1 : 0)} ${e.raciones === 1 ? 'ración' : 'raciones'} · ` : ''}${e.gramos ? `${fmt(e.gramos)} g${e.modo === 'cocinado' ? ' cocinado' : ''} · ` : ''}${fmt(e.macros.kcal)} kcal · P ${fmt(e.macros.p)} · C ${fmt(e.macros.c)} · G ${fmt(e.macros.g)}`)),
+                `${e.raciones && !e.ingredientes ? `${fmt(e.raciones, e.raciones % 1 ? 1 : 0)} ${e.raciones === 1 ? 'ración' : 'raciones'} · ` : ''}${e.gramos ? `${fmt(e.gramos)} g${e.modo === 'cocinado' ? ' cocinado' : ''} · ` : ''}${fmt(e.macros.kcal)} kcal · P ${fmt(e.macros.p)} · C ${fmt(e.macros.c)} · G ${fmt(e.macros.g)}`),
+              (e.ingredientes || e.extras?.length) && h('span', { class: 'sub bloque' },
+                [e.ingredientes?.map((i) => `${nombreIng(i)} ${fmt(i.gramos, i.gramos % 1 ? 1 : 0)} g`).join(' · '),
+                  e.extras?.length && `+ ${e.extras.map((i) => `${nombreIng(i)} ${fmt(i.gramos, i.gramos % 1 ? 1 : 0)} g`).join(' · ')}`].filter(Boolean).join(' '))),
             h('button', {
               class: 'btn-icono', type: 'button', 'aria-label': `Quitar ${e.nombre}`,
               onclick: () => { dia.entradas = dia.entradas.filter((x) => x.id !== e.id); persistir(); pintar(); },

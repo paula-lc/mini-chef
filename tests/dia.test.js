@@ -8,6 +8,7 @@ import { crearRepo, adaptadorMemoria } from '../js/repo.js';
 
 const productos = new Map([
   ['arroz', { id: 'arroz', nombre: 'Arroz', kcal: 350, p: 7, c: 78, g: 1, fibra: 1, rendimiento: 2.5, eur_kg: 2 }],
+  ['huevo', { id: 'huevo', nombre: 'Huevo', kcal: 140, p: 12, c: 1, g: 10, fibra: 0, eur_kg: 4, unidad_g: 60 }],
 ]);
 const recetas = new Map([
   ['guiso', { id: 'guiso', nombre: 'Guiso', peso_cocinado_g: 1000, ingredientes: [{ ref_tipo: 'producto', ref_id: 'arroz', gramos: 400, modo: 'crudo' }] }],
@@ -129,4 +130,19 @@ test('recetas de una sola ración se registran por raciones, sin pesar', () => {
   assert.equal(e.macros.kcal, 70); // 10 g × 350 kcal/100 g × 2 raciones
   assert.equal(macrosEntrada({ tipo: 'receta', ref_id: 'cafe', gramos: 100 }, ctx), null); // sin raciones ni peso cocinado no se puede
   assert.equal(macrosEntrada({ tipo: 'receta', ref_id: 'guiso', raciones: 1 }, ctx), null); // un guiso de olla sí necesita gramos
+});
+
+test('ingredientes propios y extras en una ración', () => {
+  recetas.set('tostada', { id: 'tostada', nombre: 'Tostada', raciones: 1, ingredientes: [{ ref_tipo: 'producto', ref_id: 'arroz', gramos: 100, modo: 'crudo' }] });
+  // ingredientes cambiados ese día: 150 g en vez de 100 g
+  const e = crearEntrada({ tipo: 'receta', ref_id: 'tostada', raciones: 1, ingredientes: [{ ref_tipo: 'producto', ref_id: 'arroz', gramos: 150, modo: 'crudo' }] }, ctx);
+  assert.equal(e.macros.kcal, 525);
+  // extras sobre una receta de olla: 300 g del guiso (420 kcal) + 60 g de huevo (84 kcal)
+  const g = crearEntrada({ tipo: 'receta', ref_id: 'guiso', gramos: 300, extras: [{ ref_tipo: 'producto', ref_id: 'huevo', gramos: 60, modo: 'crudo' }] }, ctx);
+  assert.equal(g.macros.kcal, 504);
+  // extras con producto borrado → no se puede calcular
+  assert.equal(macrosEntrada({ tipo: 'receta', ref_id: 'guiso', gramos: 300, extras: [{ ref_tipo: 'producto', ref_id: 'nada', gramos: 5 }] }, ctx), null);
+  // las plantillas conservan ingredientes y extras
+  const t = crearPlantilla('T', [g]);
+  assert.equal(t.entradas[0].extras.length, 1);
 });
