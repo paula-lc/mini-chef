@@ -78,6 +78,7 @@ test('Rakan: misma proteína y 1,6× del ingrediente escalado', () => {
   cerca(r.rakan.p, r.paula.p + 200 / 4 * 0.07 * 0.6);
   // arroz crudo en el tupper de Paula = 50 g → extra 30 g crudo
   cerca(r.rakan.extras[0].gramos, 30);
+  cerca(r.rakan.extras[0].cocinado_g, 30 * 2.5); // equivalente cocinado con rendimiento 2,5
   cerca(r.rakan.kcal, r.paula.kcal + 50 * 3.6 * 0.6);
   assert.ok(r.rakan.coste > r.paula.coste);
 });

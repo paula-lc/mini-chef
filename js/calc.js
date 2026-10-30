@@ -80,6 +80,7 @@ export function totalesReceta(receta, ctx, pila = []) {
     const gramos = Number(ing.gramos) || 0;
     let m;
     let nombre;
+    let rendimiento = null;
     if (ing.ref_tipo === 'receta') {
       const sub = ctx.receta(ing.ref_id);
       if (!sub) {
@@ -104,13 +105,14 @@ export function totalesReceta(receta, ctx, pila = []) {
         continue;
       }
       nombre = prod.nombre;
+      rendimiento = prod.rendimiento || null;
       const r = macrosProducto(prod, gramos, ing.modo || 'crudo');
       avisos.push(...r.avisos);
       m = r;
     }
     sumar(total, m);
     if (ing.escala_pareja) sumar(escala, m);
-    lineas.push({ ing, nombre, gramos, macros: m });
+    lineas.push({ ing, nombre, gramos, macros: m, rendimiento });
   }
   return { total, escala, lineas, avisos };
 }
@@ -151,6 +153,7 @@ export function calcularRaciones(receta, tot, { modo, kcal, n, mult = 1.6 }) {
       nombre: l.nombre,
       modo: l.ing.ref_tipo === 'receta' ? 'cocinado' : l.ing.modo || 'crudo',
       gramos: l.gramos * phi * (mult - 1),
+      cocinado_g: l.rendimiento && !(l.ing.modo === 'cocinado') && l.ing.ref_tipo !== 'receta' ? l.gramos * phi * (mult - 1) * l.rendimiento : null,
     }));
   return {
     gramos_tupper: G,
