@@ -17,7 +17,7 @@ function falso() {
     return { access_token: `acc${n}`, refresh_token: `ref${n}`, expires_in: 3600, user: { id: uid, email } };
   };
   const res = (cuerpo, status = 200) => ({ ok: status < 300, status, json: async () => cuerpo });
-  const estado = { caido: false };
+  const estado = { caido: false, refrescos: 0 };
   const fetchFn = async (url, { method = 'GET', headers = {}, body } = {}) => {
     if (estado.caido) throw new TypeError('Failed to fetch');
     const u = new URL(url);
@@ -30,6 +30,8 @@ function falso() {
     if (u.pathname === '/auth/v1/token') {
       if (u.searchParams.get('grant_type') === 'refresh_token') {
         const r = refrescos.get(cuerpo.refresh_token);
+        estado.refrescos++;
+        refrescos.delete(cuerpo.refresh_token); // rotación: un refresh_token solo sirve una vez
         return r ? res(emitir(r.uid, r.email)) : res({ error_description: 'Invalid Refresh Token' }, 400);
       }
       const us = usuarios.get(cuerpo.email);
@@ -222,4 +224,138 @@ test('la URL se limpia: acepta /rest/v1/ y barras finales', async () => {
   await c.configurar({ url: ' https://demo.supabase.co/rest/v1/ ', key: 'k'.repeat(40) });
   const { url } = JSON.parse(atob(await c.codigo()));
   assert.equal(url, 'https://demo.supabase.co');
+});
+
+/* ---------- varias pestañas con el mismo almacenamiento ---------- */
+
+/** Dos "pestañas": instancias distintas (cada una con su estado en memoria) sobre el mismo adaptador, como localStorage. */
+function pestanas(servidor, adaptador, n = 2) {
+  let cola = Promise.resolve();
+  const bloqueo = (fn) => { const r = cola.then(fn); cola = r.catch(() => {}); return r; }; // Web Locks de mentira
+  const oyentes = [];
+  return Array.from({ length: n }, () => {
+    const sync = crearSync({
+      adaptador, fetchFn: servidor.fetchFn, programar: () => 0, bloqueo,
+      escuchar: (fn) => oyentes.push(fn),
+    });
+    return sync;
+  }).map((sync) => ({ sync, oyentes }));
+}
+
+const caducar = async (adaptador) => {
+  const e = await adaptador.leer('_sync');
+  e.sesion.expira = 0;
+  await adaptador.escribir('_sync', e);
+};
+
+test('dos pestañas con la sesión caducada renuevan una sola vez', async () => {
+  const srv = falso();
+  const adaptador = adaptadorMemoria();
+  const inicial = crearSync({ adaptador, fetchFn: srv.fetchFn, programar: () => 0 });
+  await inicial.configurar(CONFIG);
+  await inicial.entrar('paula@ejemplo.com', 'secreto', { registrar: true });
+  await caducar(adaptador);
+
+  const [a, b] = pestanas(srv, adaptador);
+  const [ra, rb] = await Promise.all([a.sync.sincronizar(), b.sync.sincronizar()]);
+  assert.equal(srv.estado.refrescos, 1);
+  assert.equal(ra.error, undefined);
+  assert.equal(rb.error, undefined);
+  assert.equal((await a.sync.estado()).conectado, true);
+  assert.equal((await b.sync.estado()).conectado, true);
+});
+
+test('una pestaña con copia vieja no pisa la sesión renovada por otra', async () => {
+  const srv = falso();
+  const adaptador = adaptadorMemoria();
+  const inicial = crearSync({ adaptador, fetchFn: srv.fetchFn, programar: () => 0 });
+  await inicial.configurar(CONFIG);
+  await inicial.entrar('paula@ejemplo.com', 'secreto', { registrar: true });
+
+  await caducar(adaptador);
+  const [a, b] = pestanas(srv, adaptador);
+  await a.sync.estado();
+  await b.sync.estado(); // las dos cargan la sesión caducada
+  await a.sync.sincronizar(); // A la renueva
+  const renovada = (await adaptador.leer('_sync')).sesion;
+
+  await b.sync.alCambiar('pesos', 'x', { id: 'x', actualizado: '2026-10-30T10:00:00.000Z' }); // B escribe con su copia vieja
+  const tras = (await adaptador.leer('_sync')).sesion;
+  assert.equal(tras.refresh_token, renovada.refresh_token);
+  assert.equal(srv.estado.refrescos, 1);
+});
+
+test('la cola se une entre pestañas y lo ya subido no reaparece', async () => {
+  const srv = falso();
+  const adaptador = adaptadorMemoria();
+  const inicial = crearSync({ adaptador, fetchFn: srv.fetchFn, programar: () => 0 });
+  await inicial.configurar(CONFIG);
+  await inicial.entrar('paula@ejemplo.com', 'secreto', { registrar: true });
+
+  const [a, b] = pestanas(srv, adaptador);
+  await a.sync.estado();
+  await b.sync.estado();
+  await a.sync.alCambiar('pesos', 'a', { id: 'a', actualizado: '2026-10-30T10:00:00.000Z' });
+  await b.sync.alCambiar('pesos', 'b', { id: 'b', actualizado: '2026-10-30T10:00:01.000Z' });
+  assert.equal((await adaptador.leer('_sync')).cola.length, 2); // ninguna pisó a la otra
+
+  await a.sync.sincronizar(); // sube las dos
+  assert.equal((await adaptador.leer('_sync')).cola.length, 0);
+  await b.sync.alCambiar('pesos', 'c', { id: 'c', actualizado: '2026-10-30T10:00:02.000Z' });
+  const cola = (await adaptador.leer('_sync')).cola;
+  assert.deepEqual(cola.map((c) => c.id), ['c']); // B, con su copia vieja, no resucita a ni b
+});
+
+test('el evento storage actualiza la sesión en memoria', async () => {
+  const srv = falso();
+  const adaptador = adaptadorMemoria();
+  const inicial = crearSync({ adaptador, fetchFn: srv.fetchFn, programar: () => 0 });
+  await inicial.configurar(CONFIG);
+  await inicial.entrar('paula@ejemplo.com', 'secreto', { registrar: true });
+
+  const [a, b] = pestanas(srv, adaptador);
+  await b.sync.estado();
+  await a.sync.salir(); // A cierra sesión
+  assert.equal((await b.sync.estado()).conectado, true); // B aún no se ha enterado
+  for (const fn of b.oyentes) await fn(); // llega el evento storage
+  assert.equal((await b.sync.estado()).conectado, false);
+});
+
+test('si el refresco falla pero otra pestaña ya renovó, no se da por caducada', async () => {
+  const srv = falso();
+  const adaptador = adaptadorMemoria();
+  const inicial = crearSync({ adaptador, fetchFn: srv.fetchFn, programar: () => 0 });
+  await inicial.configurar(CONFIG);
+  await inicial.entrar('paula@ejemplo.com', 'secreto', { registrar: true });
+  await caducar(adaptador);
+
+  // en el momento del refresco, "otra pestaña" guarda una sesión nueva y a esta le contesta que el token ya no vale
+  const nueva = { access_token: 'otra', refresh_token: 'otra-ref', expira: Date.now() / 1000 + 3600, email: 'paula@ejemplo.com', user_id: 'u1' };
+  const fetchFn = async (url, op) => {
+    if (String(url).includes('grant_type=refresh_token')) {
+      const e = await adaptador.leer('_sync');
+      e.sesion = nueva;
+      await adaptador.escribir('_sync', e);
+      return { ok: false, status: 400, json: async () => ({ error_description: 'Invalid Refresh Token' }) };
+    }
+    return { ok: true, status: 200, json: async () => [] };
+  };
+  const t = crearSync({ adaptador, fetchFn, programar: () => 0 });
+  const r = await t.sincronizar();
+  assert.equal(r.error, undefined);
+  assert.equal((await t.estado()).conectado, true);
+});
+
+test('si de verdad ha caducado, se pide entrar de nuevo', async () => {
+  const srv = falso();
+  const adaptador = adaptadorMemoria();
+  const inicial = crearSync({ adaptador, fetchFn: srv.fetchFn, programar: () => 0 });
+  await inicial.configurar(CONFIG);
+  await inicial.entrar('paula@ejemplo.com', 'secreto', { registrar: true });
+  await caducar(adaptador);
+  const e = await adaptador.leer('_sync');
+  e.sesion.refresh_token = 'inventado';
+  await adaptador.escribir('_sync', e);
+  const r = await crearSync({ adaptador, fetchFn: srv.fetchFn, programar: () => 0 }).sincronizar();
+  assert.match(r.error, /caducado/);
 });

@@ -32,6 +32,7 @@ export function adaptadorLocal(prefijo = 'minichef:v1:') {
   })();
   return {
     persistente: !!ls,
+    clave: (col) => prefijo + col,
     async leer(col) {
       const raw = ls ? ls.getItem(prefijo + col) : mem.get(col);
       return raw ? JSON.parse(raw) : null;

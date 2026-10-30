@@ -1,5 +1,5 @@
 import { h, vaciar } from './ui.js';
-import { iniciar, sync } from './store.js';
+import { iniciar, sync, adaptador } from './store.js';
 import { listaRecetas, detalleReceta } from './views/recetas.js';
 import { editorReceta } from './views/editor.js';
 import { listaProductos, formProducto } from './views/productos.js';
@@ -70,6 +70,9 @@ async function arrancar() {
     console.error(e);
     raiz.append(h('p', { class: 'banda alerta' }, 'No se pudieron cargar los datos iniciales. Comprueba la conexión y recarga.'));
     return;
+  }
+  if (adaptador.persistente === false) {
+    raiz.before(h('p', { class: 'banda alerta aviso-fijo', role: 'alert' }, 'Este navegador no guarda datos: se perderán al recargar'));
   }
   window.addEventListener('hashchange', pintar);
   pintar();

@@ -270,3 +270,5 @@ a.seg { display: block; text-align: center; text-decoration: none; color: var(--
 .resta-kcal { margin: 0 0 12px; padding: 8px 12px; background: var(--green); border: var(--borde); border-radius: 6px; font: 800 .9rem var(--mono); }
 .resta-kcal.alerta { background: var(--pink); color: var(--ink); }
 .opcion.recomendada { background: var(--green); }
+
+.aviso-fijo { position: sticky; top: 0; z-index: 25; margin: 0; text-align: center; font-weight: 700; }
