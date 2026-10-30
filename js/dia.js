@@ -34,7 +34,10 @@ export function objetivosDia({ entrena = false, sueno_h = null } = {}, ajustes =
   const a = { ...AJUSTES_POR_DEFECTO, ...ajustes };
   const pocoSueno = sueno_h != null && sueno_h < a.sueno_min_h;
   const motivo = pocoSueno ? 'sueno' : entrena ? 'entreno' : 'descanso';
-  const kcal = { sueno: a.kcal_mantenimiento, entreno: a.kcal_entreno, descanso: a.kcal_descanso }[motivo];
+  // El ajuste del plan (p. ej. −100) se aplica a entreno y descanso, no al mantenimiento por poco sueño.
+  const kcal = {
+    sueno: a.kcal_mantenimiento, entreno: a.kcal_entreno + a.ajuste_kcal, descanso: a.kcal_descanso + a.ajuste_kcal,
+  }[motivo];
   const gMedia = (a.grasa_min + a.grasa_max) / 2;
   return {
     motivo, kcal,

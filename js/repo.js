@@ -3,12 +3,16 @@
 // la misma interfaz: { leer(col) , escribir(col, filas) }.
 
 export const COLECCIONES = ['productos', 'recetas']; // las que trae la semilla
-export const COLECCIONES_USUARIO = ['registros', 'plantillas']; // solo las crea la usuaria
+export const COLECCIONES_USUARIO = ['registros', 'plantillas', 'pesos', 'entrenos']; // solo las crea la usuaria
 export const AJUSTES_POR_DEFECTO = {
   multiplicador_pareja: 1.6, kcal_tupper: 550, personas: ['Paula', 'Rakan'],
   // objetivos diarios (Fase 2)
   kcal_entreno: 1650, kcal_descanso: 1450, kcal_mantenimiento: 1850, sueno_min_h: 6,
   proteina_min: 125, grasa_min: 45, grasa_max: 55,
+  // plan de peso y ciclo (Fase 3)
+  plan_fecha_inicio: '2026-10-30', plan_peso_inicio: 62.55, plan_fecha_fin: '2026-12-29', plan_peso_fin: 59,
+  ajuste_kcal: 0, ajuste_fecha: null, // ajuste acumulado a entreno/descanso (p. ej. −100) y cuándo se aplicó el último
+  ciclo_inicios: [], ciclo_duracion: 28,
 };
 
 /** Adaptador localStorage (con respaldo en memoria si no está disponible). */
@@ -123,6 +127,8 @@ export function crearRepo(adaptador) {
         recetas: await filas('recetas'),
         registros: await filas('registros'),
         plantillas: await filas('plantillas'),
+        pesos: await filas('pesos'),
+        entrenos: await filas('entrenos'),
       };
     },
     /** Restaura una copia (reemplaza todo). Lanza Error si el archivo no es válido. */
@@ -138,6 +144,7 @@ export function crearRepo(adaptador) {
       return {
         productos: datos.productos.length, recetas: datos.recetas.length,
         registros: datos.registros?.length ?? 0, plantillas: datos.plantillas?.length ?? 0,
+        pesos: datos.pesos?.length ?? 0, entrenos: datos.entrenos?.length ?? 0,
       };
     },
   };
