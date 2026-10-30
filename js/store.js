@@ -2,7 +2,7 @@
 import { crearRepo, adaptadorLocal } from './repo.js';
 
 export const repo = crearRepo(adaptadorLocal());
-export const datos = { productos: new Map(), recetas: new Map(), ajustes: {} };
+export const datos = { productos: new Map(), recetas: new Map(), registros: new Map(), plantillas: new Map(), ajustes: {} };
 export const ctx = {
   producto: (id) => datos.productos.get(id),
   receta: (id) => datos.recetas.get(id),
@@ -11,6 +11,8 @@ export const ctx = {
 export async function cargar() {
   datos.productos = new Map((await repo.listar('productos')).map((p) => [p.id, p]));
   datos.recetas = new Map((await repo.listar('recetas')).map((r) => [r.id, r]));
+  datos.registros = new Map((await repo.listar('registros')).map((r) => [r.id, r]));
+  datos.plantillas = new Map((await repo.listar('plantillas')).map((t) => [t.id, t]));
   datos.ajustes = await repo.ajustes();
 }
 

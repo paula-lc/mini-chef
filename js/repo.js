@@ -2,8 +2,14 @@
 // así que cambiar localStorage por Supabase = escribir otro "adaptador" con
 // la misma interfaz: { leer(col) , escribir(col, filas) }.
 
-export const COLECCIONES = ['productos', 'recetas'];
-export const AJUSTES_POR_DEFECTO = { multiplicador_pareja: 1.6, kcal_tupper: 550, personas: ['Paula', 'Rakan'] };
+export const COLECCIONES = ['productos', 'recetas']; // las que trae la semilla
+export const COLECCIONES_USUARIO = ['registros', 'plantillas']; // solo las crea la usuaria
+export const AJUSTES_POR_DEFECTO = {
+  multiplicador_pareja: 1.6, kcal_tupper: 550, personas: ['Paula', 'Rakan'],
+  // objetivos diarios (Fase 2)
+  kcal_entreno: 1650, kcal_descanso: 1450, kcal_mantenimiento: 1850, sueno_min_h: 6,
+  proteina_min: 125, grasa_min: 45, grasa_max: 55,
+};
 
 /** Adaptador localStorage (con respaldo en memoria si no está disponible). */
 export function adaptadorLocal(prefijo = 'minichef:v1:') {
@@ -115,6 +121,8 @@ export function crearRepo(adaptador) {
         ajustes: await this.ajustes(),
         productos: await filas('productos'),
         recetas: await filas('recetas'),
+        registros: await filas('registros'),
+        plantillas: await filas('plantillas'),
       };
     },
     /** Restaura una copia (reemplaza todo). Lanza Error si el archivo no es válido. */
@@ -124,8 +132,13 @@ export function crearRepo(adaptador) {
       }
       await adaptador.escribir('productos', datos.productos);
       await adaptador.escribir('recetas', datos.recetas);
+      // Las copias de la Fase 1 no traen registros/plantillas: en ese caso se conservan los actuales.
+      for (const col of COLECCIONES_USUARIO) if (Array.isArray(datos[col])) await adaptador.escribir(col, datos[col]);
       if (datos.ajustes) await adaptador.escribir('ajustes', datos.ajustes);
-      return { productos: datos.productos.length, recetas: datos.recetas.length };
+      return {
+        productos: datos.productos.length, recetas: datos.recetas.length,
+        registros: datos.registros?.length ?? 0, plantillas: datos.plantillas?.length ?? 0,
+      };
     },
   };
 }
