@@ -4,7 +4,7 @@ App web personal (en español, pensada para el móvil en la cocina) para planifi
 batch cooking y calcular macros y coste por ración. Funciona sin conexión (PWA) y guarda los datos
 en el propio navegador, con copia de seguridad en JSON.
 
-**Estado:** Fases 1 y 2 (recetas y raciones; registro diario con objetivos y plantillas). Peso/ciclo y compra llegarán en las fases 3-4.
+**Estado:** Fases 1 a 3 (recetas; registro diario; peso, ciclo y fuerza). La lista de la compra llegará en la fase 4.
 
 ## Probarla en local
 
@@ -67,6 +67,22 @@ en el editor de la receta; la app lo convierte.
 Los macros de cada elemento se **guardan en el momento de añadirlo**: si luego corriges una receta o un producto,
 los días ya registrados no cambian.
 
+### Peso, plan y ciclo (pestaña *Progreso*)
+- **Peso:** apunta el peso en ayunas. La app usa la **media de 7 días** (el peso de un día tiene mucho ruido) y la compara con el **plan**:
+  recta de 62,55 kg el 30-10-2026 a 59 kg el 29-12-2026 (−0,41 kg/semana). Se ve diferencia, ritmo real y una gráfica.
+- **Ajuste de calorías:** si las medias de 7 días de las últimas 3 semanas no bajan más de 0,1 kg de una a otra (2 semanas planas),
+  sugiere **−100 kcal/día**. Necesita ≥3 pesos por semana, no sugiere si ya vas por debajo del plan y espera 14 días tras aplicar uno.
+  Al aplicarlo se resta de los objetivos de entreno y descanso (no del mantenimiento por poco sueño); se puede quitar.
+- **Ciclo:** apunta el primer día de cada regla. Muestra la fase (menstrual, folicular, ovulación, lútea), el día y la próxima regla estimada.
+  La duración es la media de tus últimos ciclos (28 días si aún hay pocos datos) y la ovulación es una estimación, no un dato médico.
+  En fase lútea o menstrual la app avisa de que la retención de líquidos puede enmascarar la bajada.
+- El plan (fechas y pesos) está en `AJUSTES_POR_DEFECTO` de `js/repo.js`; si lo cambias, hazlo ahí.
+
+### Fuerza (Hevy)
+*Progreso → Fuerza (Hevy)*: importa el CSV de Hevy (*Perfil → Ajustes → Exportar datos*). Reimportarlo no duplica entrenos.
+Por ejercicio ves el 1RM estimado (fórmula de Epley, solo series de ≤12 repeticiones y sin calentamientos), tu mejor marca,
+la gráfica de evolución y el volumen por entreno. Si Hevy tiene un entreno un día, la pantalla *Hoy* lo marca como día de entreno.
+
 ## Cómo añadir y editar productos a mano
 
 *Productos → ＋ Nuevo producto* (o toca uno existente para editarlo):
@@ -99,7 +115,7 @@ Procedencia: los nutricionales de Mercadona se leyeron de la foto de la etiqueta
 
 ## Copia de seguridad
 
-*Ajustes → Descargar copia (JSON)* guarda productos, recetas, días registrados, plantillas y ajustes. *Restaurar desde copia* los reemplaza.
+*Ajustes → Descargar copia (JSON)* guarda productos, recetas, días registrados, plantillas, pesos, entrenos y ajustes. *Restaurar desde copia* los reemplaza.
 Los datos viven solo en el navegador: si borras los datos del sitio, se pierden. Descarga una copia de vez en cuando.
 
 ## Estructura
@@ -108,6 +124,7 @@ Los datos viven solo en el navegador: si borras los datos del sitio, se pierden.
 index.html, manifest.webmanifest, sw.js   PWA
 css/styles.css                            estilos (ventanas retro)
 js/calc.js                                cálculos puros (macros, tupper, Rakan, coste) — con tests
+js/progreso.js                           peso, plan, ciclo e importación de Hevy (puro) — con tests
 js/dia.js                                registro diario puro (objetivos, totales, plantillas) — con tests
 js/repo.js                                capa de datos: la UI solo usa esta interfaz
 js/store.js                               estado en memoria + arranque
@@ -119,7 +136,7 @@ tools/                                    servidor local y generador de iconos
 
 ### Migrar a Supabase más adelante
 `js/repo.js` define un *adaptador* con `leer(coleccion)` y `escribir(coleccion, filas)`. Hoy hay uno para
-`localStorage`. Para Supabase se escribe otro adaptador (tablas `productos`, `recetas`, `registros`, `plantillas`, `ajustes`) con la misma
+`localStorage`. Para Supabase se escribe otro adaptador (tablas `productos`, `recetas`, `registros`, `plantillas`, `pesos`, `entrenos`, `ajustes`) con la misma
 interfaz y se cambia una línea en `js/store.js`; la interfaz no toca `localStorage` en ningún sitio.
 Los datos ya son filas con `id`, `creado` y `actualizado`, y la copia JSON sirve para volcar lo existente.
 

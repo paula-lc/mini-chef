@@ -1,10 +1,10 @@
 // Service worker: la app funciona sin conexión. Sube VERSION cuando cambies archivos
 // para que los móviles descarguen la versión nueva.
-const VERSION = 'minichef-v3';
+const VERSION = 'minichef-v4';
 const ARCHIVOS = [
   './', 'index.html', 'manifest.webmanifest', 'css/styles.css',
-  'js/app.js', 'js/calc.js', 'js/dia.js', 'js/repo.js', 'js/store.js', 'js/ui.js',
-  'js/views/hoy.js', 'js/views/recetas.js', 'js/views/editor.js', 'js/views/productos.js', 'js/views/ajustes.js',
+  'js/app.js', 'js/calc.js', 'js/dia.js', 'js/progreso.js', 'js/repo.js', 'js/store.js', 'js/ui.js',
+  'js/views/grafico.js', 'js/views/progreso.js', 'js/views/fuerza.js', 'js/views/hoy.js', 'js/views/recetas.js', 'js/views/editor.js', 'js/views/productos.js', 'js/views/ajustes.js',
   'data/products.json', 'data/recipes.json',
   'icons/icon.svg', 'icons/icon-192.png', 'icons/icon-512.png',
 ];

@@ -5,11 +5,15 @@ import { editorReceta } from './views/editor.js';
 import { listaProductos, formProducto } from './views/productos.js';
 import { ajustes } from './views/ajustes.js';
 import { hoy } from './views/hoy.js';
+import { progreso } from './views/progreso.js';
+import { fuerza } from './views/fuerza.js';
 
 // Rutas por hash (funcionan en GitHub Pages sin configuración de servidor).
 const rutas = [
   [/^#\/hoy$/, (r) => hoy(r, {}), 'hoy'],
   [/^#\/hoy\/(\d{4}-\d{2}-\d{2})$/, (r, m) => hoy(r, { fecha: m[1] }), 'hoy'],
+  [/^#\/progreso$/, progreso, 'progreso'],
+  [/^#\/fuerza$/, fuerza, 'progreso'],
   [/^#\/recetas$/, listaRecetas, 'recetas'],
   [/^#\/recetas\/nueva$/, (r) => editorReceta(r, {}), 'recetas'],
   [/^#\/receta\/([^/]+)\/editar$/, (r, m) => editorReceta(r, { id: m[1] }), 'recetas'],

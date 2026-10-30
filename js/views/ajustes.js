@@ -23,10 +23,10 @@ export function ajustes(root) {
     if (!archivo) return;
     try {
       const datosArchivo = JSON.parse(await archivo.text());
-      if (!confirm('Esto reemplaza TODOS tus productos, recetas, días y plantillas actuales por los de la copia. ¿Seguir?')) return;
+      if (!confirm('Esto reemplaza TODOS tus productos, recetas, días, plantillas, pesos y entrenos actuales por los de la copia. ¿Seguir?')) return;
       const n = await repo.importar(datosArchivo);
       await cargar();
-      aviso(`Copia restaurada: ${n.productos} productos, ${n.recetas} recetas, ${n.registros} días, ${n.plantillas} plantillas`);
+      aviso(`Copia restaurada: ${n.productos} productos, ${n.recetas} recetas, ${n.registros} días, ${n.plantillas} plantillas, ${n.pesos} pesos, ${n.entrenos} entrenos`);
     } catch (err) {
       aviso(err.message || 'No se pudo leer el archivo', 'error');
     }
@@ -76,5 +76,5 @@ export function ajustes(root) {
           aviso(n ? `Recuperados ${n} elementos` : 'No faltaba nada');
         },
       }, 'Restaurar los que falten')),
-    h('p', { class: 'sub centro' }, 'Mini-chef 0.2 · Fases 1–2'));
+    h('p', { class: 'sub centro' }, 'Mini-chef 0.3 · Fases 1–3'));
 }

@@ -226,3 +226,23 @@ textarea.entrada { min-height: 88px; resize: vertical; }
 .fila-plantilla .opcion { flex: 1; margin: 0; }
 .hoja .segmentos { margin-top: 0; }
 .fecha-nav + .btn { margin: 0 0 14px; }
+
+/* ---------- Progreso y fuerza (Fase 3) ---------- */
+#nav a { font-size: .72rem; }
+.datos-peso { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 16px 0 4px; }
+.datos-peso > div { background: var(--field); border: var(--borde); border-radius: 6px; padding: 8px 10px; }
+.datos-peso b { display: block; font: 800 1.05rem var(--mono); }
+.grafico { width: 100%; height: auto; background: var(--field); border: var(--borde); border-radius: 6px; }
+.g-rejilla { stroke: rgba(31,26,46,.25); stroke-width: 1; stroke-dasharray: 3 4; }
+.g-eje { font: 10px var(--mono); fill: var(--muted); }
+.leyenda { display: flex; flex-wrap: wrap; gap: 14px; margin: 10px 0 0; font: 700 .78rem var(--mono); }
+.ley::before { content: ""; display: inline-block; width: 14px; height: 14px; margin-right: 6px; vertical-align: -2px; border: 2px solid var(--ink); border-radius: 3px; }
+.ley.plan::before { background: var(--purple); }
+.ley.dia::before { background: var(--peach); }
+.ley.media::before { background: var(--pink); }
+.fase-ciclo { font: 800 1.15rem var(--mono); margin: 4px 0 0; }
+.oculto { display: none; }
+.lista-fuerza { list-style: none; margin: 0; padding: 0; }
+.fila-fuerza { padding: 10px 0; border-bottom: 2px dashed rgba(31,26,46,.35); }
+.fila-fuerza:last-child { border: 0; }
+a.btn { display: block; text-align: center; text-decoration: none; }

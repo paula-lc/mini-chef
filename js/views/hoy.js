@@ -1,6 +1,7 @@
 import { h, fmt, num, vaciar, aviso, hoja, macrosChips, montar } from '../ui.js';
 import { datos, ctx, guardar, borrar } from '../store.js';
 import { calcularRaciones, totalesReceta } from '../calc.js';
+import { faseCiclo, FASES, entrenoEl } from '../progreso.js';
 import {
   COMIDAS, NOMBRE_COMIDA, fechaISO, sumarDias, fechaLarga, objetivosDia, totalesDia, estadoDia,
   crearEntrada, macrosEntrada, crearPlantilla, aplicarPlantilla,
@@ -21,7 +22,10 @@ function barra(etiqueta, texto, valor, escala, estado, marca) {
 export function hoy(root, { fecha } = {}) {
   const hoyISO = fechaISO();
   fecha = /^\d{4}-\d{2}-\d{2}$/.test(fecha || '') ? fecha : hoyISO;
-  const dia = structuredClone(datos.registros.get(fecha)) ?? { id: fecha, fecha, entrena: false, sueno_h: null, entradas: [] };
+  const entrenoHevy = entrenoEl([...datos.entrenos.values()], fecha);
+  // Un día nuevo empieza como "entreno" si Hevy tiene un entreno ese día (luego puedes cambiarlo).
+  const dia = structuredClone(datos.registros.get(fecha)) ?? { id: fecha, fecha, entrena: !!entrenoHevy, sueno_h: null, entradas: [] };
+  const ciclo = faseCiclo(datos.ajustes.ciclo_inicios, fecha, datos.ajustes.ciclo_duracion);
   const persistir = () => guardar('registros', dia);
   const cont = h('div');
 
@@ -233,7 +237,9 @@ export function hoy(root, { fecha } = {}) {
           pintar();
         },
       }),
-      h('p', { class: 'sub' }, motivo));
+      h('p', { class: 'sub' }, motivo),
+      entrenoHevy && h('p', { class: 'sub' }, `Hevy: ${entrenoHevy.titulo}${entrenoHevy.duracion_min ? ` (${entrenoHevy.duracion_min} min)` : ''}.`),
+      ciclo && h('p', { class: 'sub' }, `Ciclo: fase ${FASES[ciclo.fase].nombre.toLowerCase()}, día ${ciclo.dia}.`));
 
     const resumen = h('section', { class: 'tarjeta' },
       h('h2', {}, fecha === hoyISO ? 'Llevas hoy' : 'Llevó ese día'),
