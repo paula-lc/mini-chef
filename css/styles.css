@@ -3,8 +3,8 @@
 :root {
   color-scheme: light;
   --ink: #3c2b24;
-  --bg: #e4f1f0;
-  --win: #f5ecdb;
+  --bg: #e2d3c4;
+  --win: #f0e1cd;
   --field: #fffaf0;
   --purple: #53b0ae;
   --pink: #e9a39a;
@@ -196,15 +196,15 @@ textarea.entrada { min-height: 88px; resize: vertical; }
 .aviso { background: var(--green); color: var(--ink); padding: 12px 18px; border: var(--borde); border-radius: 6px; box-shadow: var(--sombra); font: 700 .92rem var(--mono); }
 .aviso.error { background: var(--pink); }
 #nav {
-  position: fixed; bottom: 0; left: 0; right: 0; z-index: 10; display: flex; gap: 8px; background: var(--purple);
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 10; display: flex; gap: 8px; background: var(--ink);
   border-top: var(--borde); padding: 8px 10px calc(8px + env(safe-area-inset-bottom));
 }
 #nav a {
   flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
-  min-height: 56px; color: var(--ink); text-decoration: none; font: 700 .72rem var(--mono); text-transform: uppercase;
+  min-height: 56px; color: var(--win); text-decoration: none; font: 700 .72rem var(--mono); text-transform: uppercase;
   border: 2px solid transparent; border-radius: 6px;
 }
-#nav a.activo { background: var(--win); border-color: var(--ink); box-shadow: 3px 3px 0 var(--ink); }
+#nav a.activo { background: var(--purple); color: var(--ink); border-color: var(--win); box-shadow: 3px 3px 0 rgba(0,0,0,.35); }
 #nav .ico { font-size: 1.35rem; }
 
 /* ---------- Diario (Fase 2) ---------- */
