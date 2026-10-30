@@ -206,3 +206,23 @@ textarea.entrada { min-height: 88px; resize: vertical; }
 }
 #nav a.activo { background: var(--win); border-color: var(--ink); box-shadow: 3px 3px 0 var(--ink); }
 #nav .ico { font-size: 1.35rem; }
+
+/* ---------- Diario (Fase 2) ---------- */
+.fecha-nav { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: 0 0 14px; }
+.fecha-nav strong { flex: 1; text-align: center; font-family: var(--mono); }
+.fecha-nav strong::first-letter { text-transform: uppercase; }
+.fecha-nav .btn-icono { text-decoration: none; display: grid; place-items: center; }
+.barra-m { margin-top: 12px; }
+.fila-b { display: flex; justify-content: space-between; gap: 8px; font: 700 .85rem var(--mono); }
+.pista { position: relative; height: 18px; margin-top: 4px; border: var(--borde); border-radius: 4px; background: var(--field); overflow: hidden; }
+.relleno { height: 100%; background: var(--green); }
+.relleno.bajo { background: var(--peach); }
+.relleno.alto { background: var(--pink); }
+.marca { position: absolute; top: 0; bottom: 0; width: 3px; background: var(--ink); }
+.sub.bloque { display: block; margin: 2px 0 0; }
+.enlace-btn { background: none; border: 0; padding: 0; font: 600 1rem var(--sans); color: var(--ink); text-align: left; text-decoration: underline dotted; cursor: pointer; }
+.titulo-paso { margin: 14px 0 0; }
+.fila-plantilla { display: flex; align-items: stretch; gap: 8px; margin-bottom: 8px; }
+.fila-plantilla .opcion { flex: 1; margin: 0; }
+.hoja .segmentos { margin-top: 0; }
+.fecha-nav + .btn { margin: 0 0 14px; }

@@ -4,9 +4,12 @@ import { listaRecetas, detalleReceta } from './views/recetas.js';
 import { editorReceta } from './views/editor.js';
 import { listaProductos, formProducto } from './views/productos.js';
 import { ajustes } from './views/ajustes.js';
+import { hoy } from './views/hoy.js';
 
 // Rutas por hash (funcionan en GitHub Pages sin configuración de servidor).
 const rutas = [
+  [/^#\/hoy$/, (r) => hoy(r, {}), 'hoy'],
+  [/^#\/hoy\/(\d{4}-\d{2}-\d{2})$/, (r, m) => hoy(r, { fecha: m[1] }), 'hoy'],
   [/^#\/recetas$/, listaRecetas, 'recetas'],
   [/^#\/recetas\/nueva$/, (r) => editorReceta(r, {}), 'recetas'],
   [/^#\/receta\/([^/]+)\/editar$/, (r, m) => editorReceta(r, { id: m[1] }), 'recetas'],
@@ -21,7 +24,7 @@ const raiz = document.getElementById('app');
 const nav = document.getElementById('nav');
 
 function pintar() {
-  const hash = decodeURIComponent(location.hash || '#/recetas');
+  const hash = decodeURIComponent(location.hash || '#/hoy');
   vaciar(raiz);
   for (const [re, vista, seccion] of rutas) {
     const m = hash.match(re);
@@ -36,7 +39,7 @@ function pintar() {
     window.scrollTo(0, 0);
     return;
   }
-  location.hash = '#/recetas';
+  location.hash = '#/hoy';
 }
 
 async function arrancar() {

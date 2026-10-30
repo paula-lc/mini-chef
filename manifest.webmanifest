@@ -3,7 +3,7 @@
   "short_name": "Mini-chef",
   "description": "Recetas, batch cooking y macros por ración.",
   "lang": "es",
-  "start_url": "./#/recetas",
+  "start_url": "./#/hoy",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",

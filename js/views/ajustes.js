@@ -23,10 +23,10 @@ export function ajustes(root) {
     if (!archivo) return;
     try {
       const datosArchivo = JSON.parse(await archivo.text());
-      if (!confirm('Esto reemplaza TODOS tus productos y recetas actuales por los de la copia. ¿Seguir?')) return;
+      if (!confirm('Esto reemplaza TODOS tus productos, recetas, días y plantillas actuales por los de la copia. ¿Seguir?')) return;
       const n = await repo.importar(datosArchivo);
       await cargar();
-      aviso(`Copia restaurada: ${n.productos} productos, ${n.recetas} recetas`);
+      aviso(`Copia restaurada: ${n.productos} productos, ${n.recetas} recetas, ${n.registros} días, ${n.plantillas} plantillas`);
     } catch (err) {
       aviso(err.message || 'No se pudo leer el archivo', 'error');
     }
@@ -51,6 +51,15 @@ export function ajustes(root) {
       numero('multiplicador_pareja', 'Rakan: multiplicador de hidratos', 'Se aplica a los ingredientes marcados "Rakan toma más" (arroz, pasta, patata, pan). 1,6 = un 60 % más.'),
       numero('kcal_tupper', 'kcal por tupper por defecto (Paula)', 'Valor inicial de la calculadora de tupper.')),
     h('section', { class: 'tarjeta' },
+      h('h2', {}, 'Objetivos diarios'),
+      numero('kcal_entreno', 'kcal en día de entreno', ''),
+      numero('kcal_descanso', 'kcal en día de descanso', ''),
+      numero('kcal_mantenimiento', 'kcal de mantenimiento', 'Se usan cuando duermes menos horas que el límite de abajo.'),
+      numero('sueno_min_h', 'Horas de sueño mínimas', 'Por debajo de esto, el objetivo pasa a mantenimiento.'),
+      numero('proteina_min', 'Proteína mínima (g)', ''),
+      numero('grasa_min', 'Grasa mínima (g)', ''),
+      numero('grasa_max', 'Grasa máxima (g)', 'Los hidratos son lo que sobra: kcal − proteína mínima − grasa media.')),
+    h('section', { class: 'tarjeta' },
       h('h2', {}, 'Copia de seguridad'),
       h('p', { class: 'sub' }, repo.persistente
         ? 'Tus datos viven solo en este navegador. Descarga una copia de vez en cuando.'
@@ -67,5 +76,5 @@ export function ajustes(root) {
           aviso(n ? `Recuperados ${n} elementos` : 'No faltaba nada');
         },
       }, 'Restaurar los que falten')),
-    h('p', { class: 'sub centro' }, 'Mini-chef 0.1 · Fase 1'));
+    h('p', { class: 'sub centro' }, 'Mini-chef 0.2 · Fases 1–2'));
 }

@@ -4,7 +4,7 @@ App web personal (en español, pensada para el móvil en la cocina) para planifi
 batch cooking y calcular macros y coste por ración. Funciona sin conexión (PWA) y guarda los datos
 en el propio navegador, con copia de seguridad en JSON.
 
-**Estado:** Fase 1 (recetas y raciones). Registro diario, peso/ciclo y compra llegarán en las fases 2-4.
+**Estado:** Fases 1 y 2 (recetas y raciones; registro diario con objetivos y plantillas). Peso/ciclo y compra llegarán en las fases 3-4.
 
 ## Probarla en local
 
@@ -53,6 +53,20 @@ como ingrediente **en gramos cocinados**, y sus macros salen de los macros por g
 Si un producto tiene **rendimiento** (arroz 2,7: 100 g crudos → 270 g cocidos) puedes pesarlo *en crudo* o *ya cocinado*
 en el editor de la receta; la app lo convierte.
 
+### Registro diario (pantalla *Hoy*)
+1. Marca si es día de **entreno** o **descanso** y, si quieres, las **horas dormidas**.
+2. El objetivo se calcula solo: entreno 1650 kcal, descanso 1450 kcal, y **1850 kcal (mantenimiento) si dormiste menos de 6 h**.
+   Proteína ≥ 125 g, grasa entre 45 y 55 g, y los hidratos son lo que sobra (kcal − proteína mínima − grasa media).
+   Todo se cambia en *Ajustes → Objetivos diarios*.
+3. En cada comida, **＋ Añadir** una *receta* (gramos cocinados que te sirves; propone el tupper de tus kcal por defecto),
+   un *producto* (en crudo o ya cocinado), algo *libre* (nombre + macros) o una *plantilla*.
+4. Toca el nombre de un elemento para corregir los gramos; ✕ lo quita. Con ‹ › cambias de día.
+5. **Plantillas:** *Guardar plantilla* en una comida (se puede aplicar a cualquier comida) o *Guardar este día* (se aplica entero).
+   Al aplicarlas se recalculan con tus datos actuales; si falta un producto o receta te avisa de cuáles omitió.
+
+Los macros de cada elemento se **guardan en el momento de añadirlo**: si luego corriges una receta o un producto,
+los días ya registrados no cambian.
+
 ## Cómo añadir y editar productos a mano
 
 *Productos → ＋ Nuevo producto* (o toca uno existente para editarlo):
@@ -85,15 +99,16 @@ Procedencia: los nutricionales de Mercadona se leyeron de la foto de la etiqueta
 
 ## Copia de seguridad
 
-*Ajustes → Descargar copia (JSON)* guarda productos, recetas y ajustes. *Restaurar desde copia* los reemplaza.
+*Ajustes → Descargar copia (JSON)* guarda productos, recetas, días registrados, plantillas y ajustes. *Restaurar desde copia* los reemplaza.
 Los datos viven solo en el navegador: si borras los datos del sitio, se pierden. Descarga una copia de vez en cuando.
 
 ## Estructura
 
 ```
 index.html, manifest.webmanifest, sw.js   PWA
-css/styles.css                            estilos (claro/oscuro)
+css/styles.css                            estilos (ventanas retro)
 js/calc.js                                cálculos puros (macros, tupper, Rakan, coste) — con tests
+js/dia.js                                registro diario puro (objetivos, totales, plantillas) — con tests
 js/repo.js                                capa de datos: la UI solo usa esta interfaz
 js/store.js                               estado en memoria + arranque
 js/ui.js, js/app.js, js/views/*           interfaz
@@ -104,7 +119,7 @@ tools/                                    servidor local y generador de iconos
 
 ### Migrar a Supabase más adelante
 `js/repo.js` define un *adaptador* con `leer(coleccion)` y `escribir(coleccion, filas)`. Hoy hay uno para
-`localStorage`. Para Supabase se escribe otro adaptador (tablas `productos`, `recetas`, `ajustes`) con la misma
+`localStorage`. Para Supabase se escribe otro adaptador (tablas `productos`, `recetas`, `registros`, `plantillas`, `ajustes`) con la misma
 interfaz y se cambia una línea en `js/store.js`; la interfaz no toca `localStorage` en ningún sitio.
 Los datos ya son filas con `id`, `creado` y `actualizado`, y la copia JSON sirve para volcar lo existente.
 
