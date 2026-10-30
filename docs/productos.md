@@ -1,3 +1,5 @@
+> Esta tabla lista solo los 84 productos básicos. Además hay 1.494 de Mercadona (en `data/products.json`, `fuente: off`, estado pendiente), con nutrición de Open Food Facts por EAN y precio/formato de Mercadona a 30-10-2026. Se ven en la app, en Productos.
+
 | Producto | Tienda | kcal | P | C | G | Fibra | Envase g | € | €/kg | Fuente | Estado |
 |---|---|--:|--:|--:|--:|--:|--:|--:|--:|---|---|
 | Preparado de carne picada de vacuno Hacendado | Mercadona | 204 | 17.5 | 0.5 | 14 | 0 | 400 | 5.40 | 13.50 | paula | verificado |

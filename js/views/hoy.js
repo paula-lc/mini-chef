@@ -161,7 +161,8 @@ export function hoy(root, { fecha } = {}) {
         }
         const fuente = [...(tipo === 'receta' ? datos.recetas : datos.productos).values()]
           .filter((x) => x.nombre.toLowerCase().includes(t))
-          .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+          .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'))
+          .slice(0, tipo === 'receta' ? 200 : 60); // con miles de productos: se escribe para buscar
         if (!fuente.length) lista.append(h('p', { class: 'vacio' }, 'Nada con ese nombre.'));
         for (const x of fuente) {
           const sub = tipo === 'receta'

@@ -116,7 +116,7 @@ Para corregir muchos de golpe, filtra por **Pendientes** en la lista de producto
 
 ## Datos iniciales (semilla)
 
-- `data/products.json`: 84 productos. Cada uno guarda macros por 100 g, envase, escurrido, precio, €/kg,
+- `data/products.json`: 1.578 productos (84 básicos revisados a mano + 1.494 de Mercadona con nutrición de Open Food Facts, en estado «Pendiente»). Cada uno guarda macros por 100 g, envase, escurrido, precio, €/kg,
   `fuente` (`paula`, `etiqueta`, `off`, `estandar`), `estado` y `estimado`.
   La lista legible está en [docs/productos.md](docs/productos.md).
 - `data/recipes.json`: 14 recetas + 3 componentes, con **cantidades estimadas** (estado *borrador*).

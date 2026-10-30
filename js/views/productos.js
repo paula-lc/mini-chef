@@ -7,6 +7,7 @@ import { slug } from '../repo.js';
 export function listaProductos(root) {
   let filtro = 'todos';
   let texto = '';
+  let limite = 60; // con miles de productos solo se pintan los primeros; "Mostrar más" añade otros 60
   const lista = h('div', { class: 'lista' });
   const resumen = h('p', { class: 'sub' });
 
@@ -20,11 +21,14 @@ export function listaProductos(root) {
       .filter((p) => (filtro === 'todos' || p.estado === filtro) && p.nombre.toLowerCase().includes(q))
       .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
     if (!ps.length) lista.append(h('p', { class: 'vacio' }, 'No hay productos con ese filtro.'));
-    for (const p of ps) {
+    for (const p of ps.slice(0, limite)) {
       lista.append(h('a', { class: 'tarjeta enlace', href: `#/producto/${p.id}` },
         h('div', { class: 'fila' }, h('h3', {}, p.nombre), insignia(p.estado)),
         h('p', { class: 'sub' }, `${fmt(p.kcal)} kcal · P ${fmt(p.p, 1)} · C ${fmt(p.c, 1)} · G ${fmt(p.g, 1)} · fibra ${p.fibra == null ? '–' : fmt(p.fibra, 1)} (por 100 g)`),
         h('p', { class: 'sub' }, `${p.tienda} · ${eur(p.precio)}${eurKg(p) != null ? ` · ${eur(eurKg(p))}/kg` : ''}${p.estimado ? ' · valores estimados' : ''}`)));
+    }
+    if (ps.length > limite) {
+      lista.append(h('button', { class: 'btn secundario', type: 'button', onclick: () => { limite += 60; pintar(); } }, `Mostrar más (${ps.length - limite} restantes)`));
     }
   };
 
@@ -32,6 +36,7 @@ export function listaProductos(root) {
     class: 'filtro' + (filtro === id ? ' activo' : ''),
     onclick: (e) => {
       filtro = id;
+      limite = 60;
       e.target.parentElement.querySelectorAll('.filtro').forEach((b) => b.classList.remove('activo'));
       e.target.classList.add('activo');
       pintar();
@@ -41,7 +46,7 @@ export function listaProductos(root) {
   root.append(
     h('header', { class: 'cab' }, h('h1', {}, 'Productos')),
     resumen,
-    h('input', { class: 'buscar', type: 'search', placeholder: 'Buscar producto…', oninput: (e) => { texto = e.target.value; pintar(); } }),
+    h('input', { class: 'buscar', type: 'search', placeholder: 'Buscar producto…', oninput: (e) => { texto = e.target.value; limite = 60; pintar(); } }),
     h('div', { class: 'filtros' }, chip('todos', 'Todos'), chip('pendiente', 'Pendientes'), chip('revisar', 'Revisar'), chip('verificado', 'Verificados')),
     lista,
     h('a', { class: 'fab', href: '#/productos/nuevo' }, '＋ Nuevo producto'));
