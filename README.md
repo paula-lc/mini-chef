@@ -126,6 +126,12 @@ Para corregir muchos de golpe, filtra por **Pendientes** en la lista de producto
 Procedencia: los nutricionales de Mercadona se leyeron de la foto de la etiqueta o de Open Food Facts
 (por EAN). La app **nunca** consulta Mercadona en tiempo real.
 
+## Sincronizar ordenador y móvil
+
+*Ajustes → Sincronizar dispositivos* conecta la app a un proyecto gratuito de Supabase para que lo que apuntes en un dispositivo salga
+en el otro. Guía paso a paso en [docs/supabase.md](docs/supabase.md) (el SQL está en [docs/supabase.sql](docs/supabase.sql)).
+Sin conexión sigue funcionando; gana el cambio más reciente de cada elemento.
+
 ## Copia de seguridad
 
 *Ajustes → Descargar copia (JSON)* guarda productos, recetas, días registrados, plantillas, pesos, entrenos, listas, stock, gastos y ajustes. *Restaurar desde copia* los reemplaza.
@@ -141,6 +147,7 @@ js/compra.js                              lista de la compra, stock y presupuest
 js/progreso.js                           peso, plan, ciclo e importación de Hevy (puro) — con tests
 js/dia.js                                registro diario puro (objetivos, totales, plantillas) — con tests
 js/repo.js                                capa de datos: la UI solo usa esta interfaz
+js/sync.js                                sincronización con Supabase (REST + Auth, sin librerías) — con tests
 js/store.js                               estado en memoria + arranque
 js/ui.js, js/app.js, js/views/*           interfaz
 data/                                     semilla de productos y recetas
@@ -148,11 +155,10 @@ tests/                                    tests (node --test)
 tools/                                    servidor local y generador de iconos
 ```
 
-### Migrar a Supabase más adelante
-`js/repo.js` define un *adaptador* con `leer(coleccion)` y `escribir(coleccion, filas)`. Hoy hay uno para
-`localStorage`. Para Supabase se escribe otro adaptador (tablas `productos`, `recetas`, `registros`, `plantillas`, `pesos`, `entrenos`, `listas`, `inventario`, `gastos`, `ajustes`) con la misma
-interfaz y se cambia una línea en `js/store.js`; la interfaz no toca `localStorage` en ningún sitio.
-Los datos ya son filas con `id`, `creado` y `actualizado`, y la copia JSON sirve para volcar lo existente.
+### Cómo está montada la sincronización
+`js/repo.js` sigue siendo la única puerta a los datos (adaptador `leer/escribir`, hoy `localStorage`). `js/sync.js` se engancha con un aviso
+por cada guardado o borrado (`alCambiar`), mantiene una cola de cambios pendientes y habla con la tabla `filas` de Supabase por REST.
+Los datos de cada dispositivo son la fuente primaria; la nube solo repara las diferencias (gana el `actualizado` más reciente).
 
 ## Licencia de datos
 Los valores nutricionales son de etiquetas de producto y de Open Food Facts (ODbL). Úsalos para uso personal.

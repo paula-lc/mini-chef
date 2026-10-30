@@ -1,5 +1,6 @@
 import { h, num, aviso } from '../ui.js';
-import { repo, datos, cargar, restaurarSemilla } from '../store.js';
+import { repo, datos, cargar, restaurarSemilla, sync } from '../store.js';
+import { tarjetaSincro } from './sincro.js';
 
 export function ajustes(root) {
   const a = datos.ajustes;
@@ -26,6 +27,8 @@ export function ajustes(root) {
       if (!confirm('Esto reemplaza TODOS tus productos, recetas, días, plantillas, pesos, entrenos, stock y gastos actuales por los de la copia. ¿Seguir?')) return;
       const n = await repo.importar(datosArchivo);
       await cargar();
+      await sync.subirTodo(); // si hay sincronización, la copia restaurada pasa a ser la versión más reciente
+      sync.sincronizar();
       aviso(`Copia restaurada: ${n.productos} productos, ${n.recetas} recetas, ${n.registros} días, ${n.plantillas} plantillas, ${n.pesos} pesos, ${n.entrenos} entrenos, ${n.inventario} del stock, ${n.gastos} gastos`);
     } catch (err) {
       aviso(err.message || 'No se pudo leer el archivo', 'error');
@@ -63,6 +66,7 @@ export function ajustes(root) {
       h('h2', {}, 'Compra'),
       numero('presupuesto_mensual', 'Presupuesto mensual (€, para 2)', ''),
       numero('tupper_aviso_dias', 'Avisar de tuppers guardados desde hace (días)', 'En Stock se marcan en rojo los tuppers más antiguos que esto.')),
+    tarjetaSincro(),
     h('section', { class: 'tarjeta' },
       h('h2', {}, 'Copia de seguridad'),
       h('p', { class: 'sub' }, repo.persistente

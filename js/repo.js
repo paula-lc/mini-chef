@@ -60,7 +60,8 @@ export const nuevoId = (prefijo = '') =>
 export const slug = (s) =>
   s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
 
-export function crearRepo(adaptador) {
+/** `alCambiar(col, id, fila|null)` (opcional) avisa de cada guardado/borrado, p. ej. para sincronizar. */
+export function crearRepo(adaptador, { alCambiar } = {}) {
   const ahora = () => new Date().toISOString();
 
   const filas = async (col) => (await adaptador.leer(col)) ?? [];
@@ -79,20 +80,25 @@ export function crearRepo(adaptador) {
       const i = todas.findIndex((f) => f.id === obj.id);
       const fila = { ...obj, actualizado: ahora() };
       if (!fila.id) fila.id = nuevoId();
-      if (i >= 0) todas[i] = fila;
-      else todas.push({ creado: fila.actualizado, ...fila });
+      const guardada = i >= 0 ? fila : { creado: fila.actualizado, ...fila };
+      if (i >= 0) todas[i] = guardada;
+      else todas.push(guardada);
       await adaptador.escribir(col, todas);
+      alCambiar?.(col, fila.id, guardada);
       return fila;
     },
     async borrar(col, id) {
       await adaptador.escribir(col, (await filas(col)).filter((f) => f.id !== id));
+      alCambiar?.(col, id, null);
     },
 
     async ajustes() {
       return { ...AJUSTES_POR_DEFECTO, ...((await adaptador.leer('ajustes')) ?? {}) };
     },
     async guardarAjustes(a) {
-      await adaptador.escribir('ajustes', { ...(await this.ajustes()), ...a });
+      const nuevos = { ...(await this.ajustes()), ...a, actualizado: ahora() };
+      await adaptador.escribir('ajustes', nuevos);
+      alCambiar?.('ajustes', 'ajustes', nuevos);
     },
 
     /**

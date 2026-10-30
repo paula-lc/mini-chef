@@ -1,5 +1,5 @@
 import { h, vaciar } from './ui.js';
-import { iniciar } from './store.js';
+import { iniciar, sync } from './store.js';
 import { listaRecetas, detalleReceta } from './views/recetas.js';
 import { editorReceta } from './views/editor.js';
 import { listaProductos, formProducto } from './views/productos.js';
@@ -51,6 +51,18 @@ function pintar() {
   location.hash = '#/hoy';
 }
 
+// Sincronización: al abrir, al volver a la app y al recuperar la conexión. Si bajan cambios se repinta
+// la pantalla, salvo que estés escribiendo (hoja abierta o campo con el foco) para no perder lo tecleado.
+function arrancarSync() {
+  const ahora = () => sync.sincronizar();
+  window.addEventListener('minichef:datos', () => {
+    if (!document.querySelector('.fondo') && !document.activeElement?.matches?.('input, select, textarea')) pintar();
+  });
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') ahora(); });
+  window.addEventListener('online', ahora);
+  ahora();
+}
+
 async function arrancar() {
   try {
     await iniciar();
@@ -61,6 +73,7 @@ async function arrancar() {
   }
   window.addEventListener('hashchange', pintar);
   pintar();
+  arrancarSync();
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('sw.js').catch((e) => console.warn('Sin modo offline:', e));
   }

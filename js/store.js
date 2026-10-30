@@ -1,7 +1,14 @@
 // Estado en memoria de la sesión + arranque. Las vistas leen de `datos` y escriben vía `repo`.
 import { crearRepo, adaptadorLocal } from './repo.js';
+import { crearSync } from './sync.js';
 
-export const repo = crearRepo(adaptadorLocal());
+export const adaptador = adaptadorLocal();
+// Sincronización con Supabase (inactiva hasta que se configura en Ajustes). Tras bajar cambios recarga los datos y avisa a la pantalla.
+export const sync = crearSync({
+  adaptador,
+  alBajar: async () => { await cargar(); globalThis.dispatchEvent?.(new Event('minichef:datos')); },
+});
+export const repo = crearRepo(adaptador, { alCambiar: (col, id, fila) => sync.alCambiar(col, id, fila) });
 export const datos = { productos: new Map(), recetas: new Map(), registros: new Map(), plantillas: new Map(), pesos: new Map(), entrenos: new Map(),
   listas: new Map(), inventario: new Map(), gastos: new Map(), ajustes: {},
 };
