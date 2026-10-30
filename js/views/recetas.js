@@ -26,6 +26,10 @@ export function listaRecetas(root) {
         n
           ? h('p', { class: 'sub' }, `${fmt(t.total.kcal / n)} kcal · ${fmt(t.total.p / n)} g P por ración (${n}) · ${eur(t.total.coste / n)}`)
           : h('p', { class: 'sub' }, `${fmt(t.total.kcal)} kcal en total`),
+        h('p', { class: 'sub resumen-ing' }, (r.ingredientes || []).map((i) => {
+          const nombre = (i.ref_tipo === 'receta' ? datos.recetas.get(i.ref_id) : datos.productos.get(i.ref_id))?.nombre ?? i.ref_id;
+          return `${nombre.replace(/ (Hacendado|Valblu|Armando).*$/, '')} ${fmt(i.gramos, i.gramos % 1 ? 1 : 0)} g`;
+        }).join(' · ')),
         !(r.peso_cocinado_g > 0) && h('p', { class: 'sub alerta' }, 'Falta el peso cocinado')));
     }
   };
@@ -138,6 +142,12 @@ export function detalleReceta(root, { id }) {
   }, texto);
 
   const porRacion = receta.raciones > 0 ? receta.raciones : null;
+  const repintar = () => {
+    const y = window.scrollY;
+    vaciar(root);
+    detalleReceta(root, { id });
+    window.scrollTo(0, y);
+  };
 
   montar(root,
     h('header', { class: 'cab' },
@@ -154,6 +164,27 @@ export function detalleReceta(root, { id }) {
         + (porRacion ? ` · ${eur(tot.total.coste / porRacion)} por ración (${porRacion})` : '')),
       porG && h('p', { class: 'sub' }, `Por 100 g cocinado: ${fmt(porG.kcal * 100)} kcal · P ${fmt(porG.p * 100, 1)} · C ${fmt(porG.c * 100, 1)} · G ${fmt(porG.g * 100, 1)}`)),
 
+    h('section', { class: 'tarjeta' },
+      h('h2', {}, 'Ingredientes'),
+      h('ul', { class: 'ingredientes' }, tot.lineas.map((l) => h('li', {},
+        h('div', { class: 'ing-nombre' }, l.nombre,
+          l.ing.escala_pareja && h('span', { class: 'etiqueta' }, `Rakan ×${fmt(mult, 1)}`),
+          h('span', { class: 'sub bloque' },
+            `${l.ing.ref_tipo === 'receta' || l.ing.modo === 'cocinado' ? 'cocinado · ' : ''}${fmt(l.macros.kcal)} kcal · P ${fmt(l.macros.p, 1)} · C ${fmt(l.macros.c, 1)} · G ${fmt(l.macros.g, 1)} · ${eur(l.macros.coste)}`)),
+        h('div', { class: 'ing-edit' },
+          h('input', {
+            class: 'entrada', type: 'text', inputmode: 'decimal', value: String(l.gramos).replace('.', ','),
+            'aria-label': `Gramos de ${l.nombre}`,
+            onchange: async (e) => {
+              const v = num(e.target.value);
+              if (!(v >= 0)) { e.target.value = String(l.gramos).replace('.', ','); return aviso('Cantidad no válida', 'error'); }
+              l.ing.gramos = v;
+              await guardar('recetas', receta);
+              repintar();
+            },
+          }), h('span', {}, 'g'))))),
+      h('p', { class: 'sub' }, 'Cambia los gramos y se recalcula todo. Para añadir, quitar o cambiar ingredientes, usa ✎ arriba.')),
+
     h('section', { class: 'tarjeta destacada' },
       h('h2', {}, 'Al terminar: ¿cuánto en cada tupper?'),
       h('label', { for: 'peso' }, 'Peso total cocinado (g)'),
@@ -161,16 +192,6 @@ export function detalleReceta(root, { id }) {
       h('div', { class: 'segmentos' }, modoBtn('kcal', 'Por kcal'), modoBtn('raciones', 'Por nº de raciones')),
       etiquetaValor, valor,
       resultado),
-
-    h('section', { class: 'tarjeta' },
-      h('h2', {}, 'Ingredientes'),
-      h('ul', { class: 'ingredientes' }, tot.lineas.map((l) => h('li', {},
-        h('div', { class: 'ing-nombre' }, l.nombre,
-          l.ing.escala_pareja && h('span', { class: 'etiqueta' }, `Rakan ×${fmt(mult, 1)}`)),
-        h('div', { class: 'ing-dato' },
-          `${fmt(l.gramos)} g`,
-          l.ing.ref_tipo === 'receta' ? ' cocinado' : (l.ing.modo === 'cocinado' ? ' cocinado' : ''),
-          h('span', { class: 'sub' }, ` · ${fmt(l.macros.kcal)} kcal · ${eur(l.macros.coste)}`)))))),
 
     receta.notas && h('section', { class: 'tarjeta' }, h('h2', {}, 'Notas'), h('p', {}, receta.notas)),
 

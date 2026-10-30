@@ -260,3 +260,8 @@ a.seg { display: block; text-align: center; text-decoration: none; color: var(--
 .linea-compra.hecho .lc-nombre { text-decoration: line-through; opacity: .55; }
 .pasos { display: flex; align-items: center; gap: 6px; font-family: var(--mono); }
 .pestanas-compra .seg { padding-inline: 4px; font-size: .78rem; min-width: 0; }
+
+/* ---------- Ingredientes visibles y editables ---------- */
+.ing-edit { display: flex; align-items: center; gap: 6px; font-weight: 700; font-family: var(--mono); }
+.ing-edit .entrada { width: 92px; min-height: 44px; margin: 0; padding: 6px 8px; text-align: right; font: 700 1rem var(--mono); }
+.resumen-ing { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-size: .82rem; }
