@@ -7,6 +7,8 @@ import { ajustes } from './views/ajustes.js';
 import { hoy } from './views/hoy.js';
 import { progreso } from './views/progreso.js';
 import { fuerza } from './views/fuerza.js';
+import { compra } from './views/compra.js';
+import { stock, gasto } from './views/stock.js';
 
 // Rutas por hash (funcionan en GitHub Pages sin configuración de servidor).
 const rutas = [
@@ -18,9 +20,12 @@ const rutas = [
   [/^#\/recetas\/nueva$/, (r) => editorReceta(r, {}), 'recetas'],
   [/^#\/receta\/([^/]+)\/editar$/, (r, m) => editorReceta(r, { id: m[1] }), 'recetas'],
   [/^#\/receta\/([^/]+)$/, (r, m) => detalleReceta(r, { id: m[1] }), 'recetas'],
-  [/^#\/productos$/, listaProductos, 'productos'],
-  [/^#\/productos\/nuevo$/, (r) => formProducto(r, {}), 'productos'],
-  [/^#\/producto\/([^/]+)$/, (r, m) => formProducto(r, { id: m[1] }), 'productos'],
+  [/^#\/compra$/, compra, 'compra'],
+  [/^#\/compra\/stock$/, stock, 'compra'],
+  [/^#\/compra\/gasto$/, gasto, 'compra'],
+  [/^#\/productos$/, listaProductos, 'compra'],
+  [/^#\/productos\/nuevo$/, (r) => formProducto(r, {}), 'compra'],
+  [/^#\/producto\/([^/]+)$/, (r, m) => formProducto(r, { id: m[1] }), 'compra'],
   [/^#\/ajustes$/, ajustes, 'ajustes'],
 ];
 

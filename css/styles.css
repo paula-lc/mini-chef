@@ -246,3 +246,17 @@ textarea.entrada { min-height: 88px; resize: vertical; }
 .fila-fuerza { padding: 10px 0; border-bottom: 2px dashed rgba(31,26,46,.35); }
 .fila-fuerza:last-child { border: 0; }
 a.btn { display: block; text-align: center; text-decoration: none; }
+
+/* ---------- Compra, stock y gasto (Fase 4) ---------- */
+a.seg { display: block; text-align: center; text-decoration: none; color: var(--ink); }
+.subseccion { font: 800 .78rem var(--mono); text-transform: uppercase; color: var(--muted); margin: 14px 0 4px; }
+.lista-compra { list-style: none; margin: 0; padding: 0; }
+.linea-compra { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 2px dashed rgba(31,26,46,.35); }
+.linea-compra:last-child { border: 0; }
+.linea-compra .check { flex: 1; align-items: flex-start; margin: 0; }
+.linea-compra .check input { margin-top: 6px; flex: none; }
+.lc-texto { display: block; }
+.lc-nombre { font-weight: 600; }
+.linea-compra.hecho .lc-nombre { text-decoration: line-through; opacity: .55; }
+.pasos { display: flex; align-items: center; gap: 6px; font-family: var(--mono); }
+.pestanas-compra .seg { padding-inline: 4px; font-size: .78rem; min-width: 0; }

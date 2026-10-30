@@ -23,10 +23,10 @@ export function ajustes(root) {
     if (!archivo) return;
     try {
       const datosArchivo = JSON.parse(await archivo.text());
-      if (!confirm('Esto reemplaza TODOS tus productos, recetas, días, plantillas, pesos y entrenos actuales por los de la copia. ¿Seguir?')) return;
+      if (!confirm('Esto reemplaza TODOS tus productos, recetas, días, plantillas, pesos, entrenos, stock y gastos actuales por los de la copia. ¿Seguir?')) return;
       const n = await repo.importar(datosArchivo);
       await cargar();
-      aviso(`Copia restaurada: ${n.productos} productos, ${n.recetas} recetas, ${n.registros} días, ${n.plantillas} plantillas, ${n.pesos} pesos, ${n.entrenos} entrenos`);
+      aviso(`Copia restaurada: ${n.productos} productos, ${n.recetas} recetas, ${n.registros} días, ${n.plantillas} plantillas, ${n.pesos} pesos, ${n.entrenos} entrenos, ${n.inventario} del stock, ${n.gastos} gastos`);
     } catch (err) {
       aviso(err.message || 'No se pudo leer el archivo', 'error');
     }
@@ -60,6 +60,10 @@ export function ajustes(root) {
       numero('grasa_min', 'Grasa mínima (g)', ''),
       numero('grasa_max', 'Grasa máxima (g)', 'Los hidratos son lo que sobra: kcal − proteína mínima − grasa media.')),
     h('section', { class: 'tarjeta' },
+      h('h2', {}, 'Compra'),
+      numero('presupuesto_mensual', 'Presupuesto mensual (€, para 2)', ''),
+      numero('tupper_aviso_dias', 'Avisar de tuppers guardados desde hace (días)', 'En Stock se marcan en rojo los tuppers más antiguos que esto.')),
+    h('section', { class: 'tarjeta' },
       h('h2', {}, 'Copia de seguridad'),
       h('p', { class: 'sub' }, repo.persistente
         ? 'Tus datos viven solo en este navegador. Descarga una copia de vez en cuando.'
@@ -76,5 +80,5 @@ export function ajustes(root) {
           aviso(n ? `Recuperados ${n} elementos` : 'No faltaba nada');
         },
       }, 'Restaurar los que falten')),
-    h('p', { class: 'sub centro' }, 'Mini-chef 0.3 · Fases 1–3'));
+    h('p', { class: 'sub centro' }, 'Mini-chef 0.4 · Fases 1–4'));
 }

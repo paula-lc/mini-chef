@@ -4,7 +4,7 @@ App web personal (en español, pensada para el móvil en la cocina) para planifi
 batch cooking y calcular macros y coste por ración. Funciona sin conexión (PWA) y guarda los datos
 en el propio navegador, con copia de seguridad en JSON.
 
-**Estado:** Fases 1 a 3 (recetas; registro diario; peso, ciclo y fuerza). La lista de la compra llegará en la fase 4.
+**Estado:** Fases 1 a 4 (recetas; registro diario; peso, ciclo y fuerza; compra, stock y presupuesto).
 
 ## Probarla en local
 
@@ -83,6 +83,19 @@ los días ya registrados no cambian.
 Por ejercicio ves el 1RM estimado (fórmula de Epley, solo series de ≤12 repeticiones y sin calentamientos), tu mejor marca,
 la gráfica de evolución y el volumen por entreno. Si Hevy tiene un entreno un día, la pantalla *Hoy* lo marca como día de entreno.
 
+### Compra, stock y presupuesto (pestaña *Compra*)
+- **Lista:** elige las recetas que cocinas (con 0,5 de paso: las cantidades de cada receta son las de la olla entera, así que
+  pon 1,5 si cocinas más para Rakan). La app suma los ingredientes **en crudo** (un componente aporta la parte proporcional que usas),
+  resta lo que tienes en *Stock*, redondea a **envases enteros** y agrupa por **tienda y sección** en el orden del súper
+  (congelados, carnicería, lácteos, fruta y verdura, despensa). Marca lo que vas metiendo en el carro. Los extras (productos o
+  cosas libres como detergente) se suman al total.
+- **Registrar compra:** guarda el importe real como gasto, y si quieres añade lo comprado al stock. Si no marcaste nada, registra toda la lista.
+- **Stock:** congelador, nevera y despensa. Productos (en g, unidades o envases), **tuppers** de una receta (con la fecha en que los
+  guardaste: pasados los días de Ajustes se marcan en rojo) y cosas libres. *−1* resta un tupper/envase.
+- **Gasto:** presupuesto de **520 €/mes para 2** (cámbialo en Ajustes): cuánto llevas, cuánto queda, euros al día que quedan y si vas
+  por delante del ritmo. Compara también el total de la lista con lo que te queda.
+- Los precios son los del catálogo (nunca se consulta Mercadona en tiempo real): si cambian, edítalos en *Compra → Productos*.
+
 ## Cómo añadir y editar productos a mano
 
 *Productos → ＋ Nuevo producto* (o toca uno existente para editarlo):
@@ -115,7 +128,7 @@ Procedencia: los nutricionales de Mercadona se leyeron de la foto de la etiqueta
 
 ## Copia de seguridad
 
-*Ajustes → Descargar copia (JSON)* guarda productos, recetas, días registrados, plantillas, pesos, entrenos y ajustes. *Restaurar desde copia* los reemplaza.
+*Ajustes → Descargar copia (JSON)* guarda productos, recetas, días registrados, plantillas, pesos, entrenos, listas, stock, gastos y ajustes. *Restaurar desde copia* los reemplaza.
 Los datos viven solo en el navegador: si borras los datos del sitio, se pierden. Descarga una copia de vez en cuando.
 
 ## Estructura
@@ -124,6 +137,7 @@ Los datos viven solo en el navegador: si borras los datos del sitio, se pierden.
 index.html, manifest.webmanifest, sw.js   PWA
 css/styles.css                            estilos (ventanas retro)
 js/calc.js                                cálculos puros (macros, tupper, Rakan, coste) — con tests
+js/compra.js                              lista de la compra, stock y presupuesto (puro) — con tests
 js/progreso.js                           peso, plan, ciclo e importación de Hevy (puro) — con tests
 js/dia.js                                registro diario puro (objetivos, totales, plantillas) — con tests
 js/repo.js                                capa de datos: la UI solo usa esta interfaz
@@ -136,7 +150,7 @@ tools/                                    servidor local y generador de iconos
 
 ### Migrar a Supabase más adelante
 `js/repo.js` define un *adaptador* con `leer(coleccion)` y `escribir(coleccion, filas)`. Hoy hay uno para
-`localStorage`. Para Supabase se escribe otro adaptador (tablas `productos`, `recetas`, `registros`, `plantillas`, `pesos`, `entrenos`, `ajustes`) con la misma
+`localStorage`. Para Supabase se escribe otro adaptador (tablas `productos`, `recetas`, `registros`, `plantillas`, `pesos`, `entrenos`, `listas`, `inventario`, `gastos`, `ajustes`) con la misma
 interfaz y se cambia una línea en `js/store.js`; la interfaz no toca `localStorage` en ningún sitio.
 Los datos ya son filas con `id`, `creado` y `actualizado`, y la copia JSON sirve para volcar lo existente.
 
