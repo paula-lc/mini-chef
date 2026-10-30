@@ -122,3 +122,11 @@ test('registros y plantillas viajan en la copia de seguridad', async () => {
   await b.importar({ app: 'mini-chef', productos: [], recetas: [] });
   assert.equal((await b.listar('registros')).length, 1);
 });
+
+test('recetas de una sola ración se registran por raciones, sin pesar', () => {
+  recetas.set('cafe', { id: 'cafe', nombre: 'Café', raciones: 1, ingredientes: [{ ref_tipo: 'producto', ref_id: 'arroz', gramos: 10, modo: 'crudo' }] });
+  const e = crearEntrada({ tipo: 'receta', ref_id: 'cafe', raciones: 2 }, ctx);
+  assert.equal(e.macros.kcal, 70); // 10 g × 350 kcal/100 g × 2 raciones
+  assert.equal(macrosEntrada({ tipo: 'receta', ref_id: 'cafe', gramos: 100 }, ctx), null); // sin raciones ni peso cocinado no se puede
+  assert.equal(macrosEntrada({ tipo: 'receta', ref_id: 'guiso', raciones: 1 }, ctx), null); // un guiso de olla sí necesita gramos
+});

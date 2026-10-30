@@ -1,6 +1,6 @@
 import { h, fmt, eur, num, vaciar, aviso, macrosChips, debounce, montar } from '../ui.js';
 import { datos, ctx, guardar, borrar } from '../store.js';
-import { totalesReceta, porGramoCocinado, calcularRaciones } from '../calc.js';
+import { totalesReceta, porGramoCocinado, calcularRaciones, esIndividual } from '../calc.js';
 
 /* ---------- Lista ---------- */
 export function listaRecetas(root) {
@@ -30,7 +30,7 @@ export function listaRecetas(root) {
           const nombre = (i.ref_tipo === 'receta' ? datos.recetas.get(i.ref_id) : datos.productos.get(i.ref_id))?.nombre ?? i.ref_id;
           return `${nombre.replace(/ (Hacendado|Valblu|Armando).*$/, '')} ${fmt(i.gramos, i.gramos % 1 ? 1 : 0)} g`;
         }).join(' · ')),
-        !(r.peso_cocinado_g > 0) && h('p', { class: 'sub alerta' }, 'Falta el peso cocinado')));
+        !(r.peso_cocinado_g > 0) && !esIndividual(r) && h('p', { class: 'sub alerta' }, 'Falta el peso cocinado')));
     }
   };
 
@@ -142,6 +142,23 @@ export function detalleReceta(root, { id }) {
   }, texto);
 
   const porRacion = receta.raciones > 0 ? receta.raciones : null;
+
+  // Receta de una sola ración (café, tostada…): se muestra tal cual, sin pesar ni tuppers.
+  const racion = (() => {
+    const t = tot.total;
+    const ks = ['kcal', 'p', 'c', 'g', 'coste'];
+    const rakan = Object.fromEntries(ks.map((k) => [k, t[k] + (mult - 1) * tot.escala[k]]));
+    const extras = tot.lineas.filter((l) => l.ing.escala_pareja);
+    return h('section', { class: 'tarjeta destacada' },
+      h('h2', {}, 'Una ración'),
+      h('p', { class: 'sub' }, 'Receta de una sola ración: no hay que pesarla. Los macros de arriba son los de una ración.'),
+      h('div', { class: 'dos' },
+        h('div', { class: 'persona' }, h('h4', {}, 'Paula'), macrosChips(t), h('p', { class: 'sub' }, `Coste ${eur(t.coste)}`)),
+        extras.length > 0 && h('div', { class: 'persona rakan' },
+          h('h4', {}, `Rakan (×${fmt(mult, 1)} hidrato)`),
+          h('p', { class: 'extra' }, '+ aparte: ', extras.map((l, i) => h('span', {}, i ? ' · ' : '', `${fmt(l.gramos * (mult - 1))} g ${l.nombre.toLowerCase()}`))),
+          macrosChips(rakan), h('p', { class: 'sub' }, `Coste ${eur(rakan.coste)}`))));
+  })();
   const repintar = () => {
     const y = window.scrollY;
     vaciar(root);
@@ -185,7 +202,7 @@ export function detalleReceta(root, { id }) {
           }), h('span', {}, 'g'))))),
       h('p', { class: 'sub' }, 'Cambia los gramos y se recalcula todo. Para añadir, quitar o cambiar ingredientes, usa ✎ arriba.')),
 
-    h('section', { class: 'tarjeta destacada' },
+    esIndividual(receta) ? racion : h('section', { class: 'tarjeta destacada' },
       h('h2', {}, 'Al terminar: ¿cuánto en cada tupper?'),
       h('label', { for: 'peso' }, 'Peso total cocinado (g)'),
       campoPeso,

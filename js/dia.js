@@ -1,5 +1,5 @@
 // Lógica pura del registro diario (sin DOM ni almacenamiento): objetivos, totales, plantillas.
-import { macrosProducto, totalesReceta, porGramoCocinado, redondear } from './calc.js';
+import { macrosProducto, totalesReceta, porGramoCocinado, redondear, esIndividual } from './calc.js';
 import { AJUSTES_POR_DEFECTO, nuevoId } from './repo.js';
 
 export const COMIDAS = [
@@ -65,13 +65,19 @@ export function macrosEntrada(e, ctx) {
     m = macrosProducto(p, e.gramos, e.modo || 'crudo');
   } else if (e.tipo === 'receta') {
     const r = ctx.receta(e.ref_id);
-    if (!r || !(e.gramos > 0)) return null;
+    if (!r) return null;
     const tot = totalesReceta(r, ctx);
     // Una receta cuyos ingredientes ya no existen daría 0 kcal en silencio: mejor rechazarla.
     if (tot.avisos.length && !(tot.total.kcal > 0)) return null;
-    const pg = porGramoCocinado(r, tot.total);
-    if (!pg) return null;
-    m = Object.fromEntries(MACROS.map((k) => [k, (pg[k] || 0) * e.gramos]));
+    if (esIndividual(r) && e.raciones > 0) {
+      // receta de una sola ración: se cuenta en raciones, no en gramos
+      m = Object.fromEntries(MACROS.map((k) => [k, (tot.total[k] || 0) * e.raciones]));
+    } else {
+      if (!(e.gramos > 0)) return null;
+      const pg = porGramoCocinado(r, tot.total);
+      if (!pg) return null;
+      m = Object.fromEntries(MACROS.map((k) => [k, (pg[k] || 0) * e.gramos]));
+    }
   } else {
     return null;
   }
@@ -79,8 +85,8 @@ export function macrosEntrada(e, ctx) {
 }
 
 /** Entrada lista para guardar: calcula y congela los macros del momento (el historial no cambia si luego editas la receta). */
-export function crearEntrada({ comida = 'comida', tipo, ref_id, gramos, modo, nombre, libre }, ctx) {
-  const base = { comida, tipo, ref_id: ref_id ?? null, gramos: gramos ?? null, modo: modo ?? null, libre: libre ?? null };
+export function crearEntrada({ comida = 'comida', tipo, ref_id, gramos, raciones, modo, nombre, libre }, ctx) {
+  const base = { comida, tipo, ref_id: ref_id ?? null, gramos: gramos ?? null, raciones: raciones ?? null, modo: modo ?? null, libre: libre ?? null };
   base.nombre = nombre || (tipo === 'receta' ? ctx.receta(ref_id)?.nombre : ctx.producto(ref_id)?.nombre) || 'Sin nombre';
   const macros = macrosEntrada(base, ctx);
   if (!macros) throw new Error(`No se pueden calcular los macros de "${base.nombre}"`);
@@ -110,7 +116,7 @@ export function estadoDia(totales, obj) {
 export function crearPlantilla(nombre, entradas, ambito = 'dia') {
   return {
     id: nuevoId('t'), nombre, ambito,
-    entradas: entradas.map(({ comida, tipo, ref_id, gramos, modo, nombre: n, libre }) => ({ comida, tipo, ref_id, gramos, modo, nombre: n, libre })),
+    entradas: entradas.map(({ comida, tipo, ref_id, gramos, raciones, modo, nombre: n, libre }) => ({ comida, tipo, ref_id, gramos, raciones, modo, nombre: n, libre })),
   };
 }
 

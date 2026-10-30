@@ -1,6 +1,6 @@
 import { h, fmt, num, vaciar, aviso, hoja, macrosChips, montar } from '../ui.js';
 import { datos, ctx, guardar, borrar } from '../store.js';
-import { calcularRaciones, totalesReceta } from '../calc.js';
+import { calcularRaciones, totalesReceta, esIndividual } from '../calc.js';
 import { faseCiclo, FASES, entrenoEl } from '../progreso.js';
 import {
   COMIDAS, NOMBRE_COMIDA, fechaISO, sumarDias, fechaLarga, objetivosDia, totalesDia, estadoDia,
@@ -67,20 +67,23 @@ export function hoy(root, { fecha } = {}) {
     const paso2 = (tipo, item) => {
       let modo = 'crudo';
       let sugerido = '';
-      if (tipo === 'receta' && item.peso_cocinado_g > 0) {
+      const porRaciones = tipo === 'receta' && esIndividual(item); // café, tostada…: se cuenta en raciones, sin pesar
+      if (porRaciones) sugerido = '1';
+      else if (tipo === 'receta' && item.peso_cocinado_g > 0) {
         const r = calcularRaciones(item, totalesReceta(item, ctx), {
           modo: 'kcal', kcal: datos.ajustes.kcal_tupper, mult: datos.ajustes.multiplicador_pareja,
         });
         if (r) sugerido = String(Math.round(r.gramos_tupper));
       }
       const entrada = h('input', { class: 'entrada grande-in', type: 'text', inputmode: 'decimal', placeholder: '0', value: sugerido });
+      const clave = porRaciones ? 'raciones' : 'gramos';
       const prev = h('div', { class: 'resultado' });
       const ok = h('button', { class: 'btn', type: 'button' }, 'Añadir');
       const actualizar = () => {
         const g = num(entrada.value);
-        const m = g > 0 ? macrosEntrada({ tipo, ref_id: item.id, gramos: g, modo }, ctx) : null;
+        const m = g > 0 ? macrosEntrada({ tipo, ref_id: item.id, [clave]: g, modo }, ctx) : null;
         vaciar(prev);
-        prev.append(m ? macrosChips(m) : h('p', { class: 'ayuda' }, g > 0 ? 'No se pueden calcular los macros (¿falta el peso cocinado?).' : 'Escribe los gramos.'));
+        prev.append(m ? macrosChips(m) : h('p', { class: 'ayuda' }, g > 0 ? 'No se pueden calcular los macros (¿falta el peso cocinado?).' : `Escribe ${porRaciones ? 'las raciones' : 'los gramos'}.`));
         ok.disabled = !m;
       };
       const seg = (m, texto) => h('button', {
@@ -95,7 +98,7 @@ export function hoy(root, { fecha } = {}) {
       entrada.addEventListener('input', actualizar);
       ok.addEventListener('click', () => {
         try {
-          meter([crearEntrada({ comida, tipo, ref_id: item.id, gramos: num(entrada.value), modo: tipo === 'producto' ? modo : null }, ctx)]);
+          meter([crearEntrada({ comida, tipo, ref_id: item.id, [clave]: num(entrada.value), modo: tipo === 'producto' ? modo : null }, ctx)]);
         } catch (e) { aviso(e.message, 'error'); }
       });
       vaciar(cuerpo);
@@ -103,9 +106,9 @@ export function hoy(root, { fecha } = {}) {
         h('button', { class: 'btn secundario', type: 'button', onclick: () => elegir(tipo) }, '‹ Volver'),
         h('h3', { class: 'titulo-paso' }, item.nombre),
         tipo === 'producto' && item.rendimiento > 0 && h('div', { class: 'segmentos' }, seg('crudo', 'En crudo'), seg('cocinado', 'Ya cocinado')),
-        h('label', {}, tipo === 'receta' ? 'Gramos cocinados que te sirves' : 'Gramos'),
+        h('label', {}, porRaciones ? 'Raciones (1 = una taza / una ración entera)' : tipo === 'receta' ? 'Gramos cocinados que te sirves' : 'Gramos'),
         entrada,
-        sugerido && h('p', { class: 'sub' }, `Sugerido: tupper de ${fmt(datos.ajustes.kcal_tupper)} kcal.`),
+        sugerido && !porRaciones && h('p', { class: 'sub' }, `Sugerido: tupper de ${fmt(datos.ajustes.kcal_tupper)} kcal.`),
         prev, ok);
       actualizar();
       entrada.focus();
@@ -188,16 +191,17 @@ export function hoy(root, { fecha } = {}) {
 
   /* ---------- Editar gramos ---------- */
   const editar = (e) => hoja(e.nombre, (cerrar) => {
-    const entrada = h('input', { class: 'entrada grande-in', type: 'text', inputmode: 'decimal', value: coma(e.gramos) });
+    const entrada = h('input', { class: 'entrada grande-in', type: 'text', inputmode: 'decimal', value: coma(e.raciones ?? e.gramos) });
+    const clave = e.raciones != null ? 'raciones' : 'gramos';
     return h('div', {},
-      h('label', {}, e.tipo === 'receta' ? 'Gramos cocinados' : `Gramos${e.modo === 'cocinado' ? ' (cocinado)' : ''}`),
+      h('label', {}, clave === 'raciones' ? 'Raciones' : e.tipo === 'receta' ? 'Gramos cocinados' : `Gramos${e.modo === 'cocinado' ? ' (cocinado)' : ''}`),
       entrada,
       h('button', {
         class: 'btn', type: 'button', onclick: () => {
           const g = num(entrada.value);
-          const macros = g > 0 ? macrosEntrada({ ...e, gramos: g }, ctx) : null;
+          const macros = g > 0 ? macrosEntrada({ ...e, [clave]: g }, ctx) : null;
           if (!macros) return aviso('No se pueden calcular los macros con ese valor', 'error');
-          e.gramos = g;
+          e[clave] = g;
           e.macros = macros;
           persistir();
           cerrar();
@@ -266,7 +270,7 @@ export function hoy(root, { fecha } = {}) {
                 ? h('span', {}, e.nombre)
                 : h('button', { class: 'enlace-btn', type: 'button', onclick: () => editar(e) }, e.nombre),
               h('span', { class: 'sub bloque' },
-                `${e.gramos ? `${fmt(e.gramos)} g${e.modo === 'cocinado' ? ' cocinado' : ''} · ` : ''}${fmt(e.macros.kcal)} kcal · P ${fmt(e.macros.p)} · C ${fmt(e.macros.c)} · G ${fmt(e.macros.g)}`)),
+                `${e.raciones ? `${fmt(e.raciones, e.raciones % 1 ? 1 : 0)} ${e.raciones === 1 ? 'ración' : 'raciones'} · ` : ''}${e.gramos ? `${fmt(e.gramos)} g${e.modo === 'cocinado' ? ' cocinado' : ''} · ` : ''}${fmt(e.macros.kcal)} kcal · P ${fmt(e.macros.p)} · C ${fmt(e.macros.c)} · G ${fmt(e.macros.g)}`)),
             h('button', {
               class: 'btn-icono', type: 'button', 'aria-label': `Quitar ${e.nombre}`,
               onclick: () => { dia.entradas = dia.entradas.filter((x) => x.id !== e.id); persistir(); pintar(); },

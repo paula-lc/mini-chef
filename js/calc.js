@@ -10,6 +10,9 @@ const sumar = (a, b, k = 1) => {
 };
 const escalar = (a, k) => sumar(cero(), a, k);
 
+/** Receta de una sola ración (café, tostada…): no se pesa ni se reparte en tuppers. */
+export const esIndividual = (receta) => receta.individual ?? receta.raciones === 1;
+
 export const redondear = (n, d = 1) => {
   const m = 10 ** d;
   return Math.round(n * m) / m;
