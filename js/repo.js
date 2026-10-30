@@ -3,7 +3,7 @@
 // la misma interfaz: { leer(col) , escribir(col, filas) }.
 
 export const COLECCIONES = ['productos', 'recetas']; // las que trae la semilla
-export const COLECCIONES_USUARIO = ['registros', 'plantillas', 'pesos', 'entrenos']; // solo las crea la usuaria
+export const COLECCIONES_USUARIO = ['registros', 'plantillas', 'pesos', 'entrenos', 'listas', 'inventario', 'gastos']; // solo las crea la usuaria
 export const AJUSTES_POR_DEFECTO = {
   multiplicador_pareja: 1.6, kcal_tupper: 550, personas: ['Paula', 'Rakan'],
   // objetivos diarios (Fase 2)
@@ -13,6 +13,8 @@ export const AJUSTES_POR_DEFECTO = {
   plan_fecha_inicio: '2026-10-30', plan_peso_inicio: 62.55, plan_fecha_fin: '2026-12-29', plan_peso_fin: 59,
   ajuste_kcal: 0, ajuste_fecha: null, // ajuste acumulado a entreno/descanso (p. ej. −100) y cuándo se aplicó el último
   ciclo_inicios: [], ciclo_duracion: 28,
+  // compra (Fase 4)
+  presupuesto_mensual: 520, tupper_aviso_dias: 60,
 };
 
 /** Adaptador localStorage (con respaldo en memoria si no está disponible). */
@@ -129,6 +131,9 @@ export function crearRepo(adaptador) {
         plantillas: await filas('plantillas'),
         pesos: await filas('pesos'),
         entrenos: await filas('entrenos'),
+        listas: await filas('listas'),
+        inventario: await filas('inventario'),
+        gastos: await filas('gastos'),
       };
     },
     /** Restaura una copia (reemplaza todo). Lanza Error si el archivo no es válido. */
@@ -145,6 +150,7 @@ export function crearRepo(adaptador) {
         productos: datos.productos.length, recetas: datos.recetas.length,
         registros: datos.registros?.length ?? 0, plantillas: datos.plantillas?.length ?? 0,
         pesos: datos.pesos?.length ?? 0, entrenos: datos.entrenos?.length ?? 0,
+        inventario: datos.inventario?.length ?? 0, gastos: datos.gastos?.length ?? 0,
       };
     },
   };
