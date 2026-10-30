@@ -60,3 +60,27 @@
 | Bagels (pack de 4) | Mercadona | 260 | 10 | 50 | 1.5 | 2.5 | 380 | 1.75 | 4.61 | estandar | pendiente |
 | Café soluble | Mercadona | 210 | 14 | 37 | 0.5 | 0 | 100 | 3.20 | 32.00 | estandar | pendiente |
 | Edulcorante de sacarina | Mercadona | 0 | 0 | 0 | 0 | 0 | 100 | 1.10 | 11.00 | estandar | pendiente |
+| Lechuga | Frutería | 16 | 1.2 | 2.2 | 0.2 | 1.3 | 250 | 0.95 | 3.80 | estandar | pendiente |
+| Tomate | Frutería | 19 | 0.9 | 3 | 0.2 | 1.2 | 1000 | 2.20 | 2.20 | estandar | pendiente |
+| Pepino | Frutería | 12 | 0.6 | 1.8 | 0.1 | 0.7 | 300 | 0.70 | 2.33 | estandar | pendiente |
+| Zanahoria | Frutería | 38 | 0.9 | 7 | 0.2 | 2.8 | 1000 | 1.10 | 1.10 | estandar | pendiente |
+| Pimiento rojo | Frutería | 29 | 1 | 4.6 | 0.3 | 2 | 1000 | 2.60 | 2.60 | estandar | pendiente |
+| Calabacín | Frutería | 17 | 1.2 | 1.8 | 0.3 | 1 | 1000 | 1.90 | 1.90 | estandar | pendiente |
+| Champiñones | Frutería | 20 | 3 | 0.5 | 0.3 | 1 | 500 | 1.80 | 3.60 | estandar | pendiente |
+| Ajo | Frutería | 131 | 6 | 24 | 0.5 | 2 | 100 | 0.90 | 9.00 | estandar | pendiente |
+| Mayonesa | Mercadona | 680 | 1 | 2 | 75 | 0 | 450 | 1.90 | 4.22 | estandar | pendiente |
+| Mayonesa light | Mercadona | 280 | 0.6 | 7 | 28 | 0 | 450 | 2.00 | 4.44 | estandar | pendiente |
+| Mantequilla | Mercadona | 740 | 0.6 | 0.6 | 82 | 0 | 250 | 2.30 | 9.20 | estandar | pendiente |
+| Ketchup | Mercadona | 105 | 1.2 | 25 | 0.1 | 0.5 | 560 | 1.50 | 2.68 | estandar | pendiente |
+| Mostaza | Mercadona | 75 | 4 | 5 | 4 | 3 | 270 | 0.95 | 3.52 | estandar | pendiente |
+| Atún claro al natural (pack de 3) | Mercadona | 104 | 24 | 0 | 1 | 0 | 156 | 2.40 | 15.38 | estandar | pendiente |
+| Pan de molde integral | Mercadona | 250 | 9 | 42 | 3.5 | 6 | 460 | 1.45 | 3.15 | estandar | pendiente |
+| Tortillas de trigo | Mercadona | 300 | 8 | 50 | 7 | 3 | 320 | 1.40 | 4.38 | estandar | pendiente |
+| Yogur natural | Mercadona | 62 | 4 | 5 | 3 | 0 | 500 | 1.00 | 2.00 | estandar | pendiente |
+| Yogur griego natural | Mercadona | 117 | 5 | 4 | 9 | 0 | 500 | 1.50 | 3.00 | estandar | pendiente |
+| Queso fresco batido 0 % | Mercadona | 48 | 8 | 4 | 0.2 | 0 | 500 | 1.10 | 2.20 | estandar | pendiente |
+| Jamón cocido extra (lonchas) | Mercadona | 105 | 17 | 1 | 3.5 | 0 | 150 | 1.70 | 11.33 | estandar | pendiente |
+| Tomate frito | Mercadona | 78 | 1.5 | 9 | 3.5 | 1.2 | 400 | 0.95 | 2.37 | estandar | pendiente |
+| Sal | Mercadona | 0 | 0 | 0 | 0 | 0 | 1000 | 0.40 | 0.40 | estandar | pendiente |
+| Vinagre de vino | Mercadona | 3 | 0 | 0.6 | 0 | 0 | 1000 | 0.90 | 0.90 | estandar | pendiente |
+| Aceitunas verdes (escurridas) | Mercadona | 145 | 1 | 1 | 14 | 3 | 350 | 1.10 | 3.14 | estandar | pendiente |
