@@ -1,0 +1,172 @@
+{
+  "version": 1,
+  "nota": "Cantidades ESTIMADAS (estado borrador). Ajusta ingredientes y peso cocinado a tu receta real. Ingredientes de tipo receta se pesan en gramos cocinados.",
+  "recetas": [
+    {
+      "id": "arroz-cocido", "nombre": "Arroz cocido", "tipo": "componente", "estado": "borrador",
+      "raciones": 4, "peso_cocinado_g": 810,
+      "notas": "300 g de arroz crudo → ~810 g cocido (rendimiento 2,7).",
+      "ingredientes": [
+        { "ref_tipo": "producto", "ref_id": "arroz-redondo", "gramos": 300, "modo": "crudo", "escala_pareja": false }
+      ]
+    },
+    {
+      "id": "pollo-shawarma", "nombre": "Pollo shawarma", "tipo": "componente", "estado": "borrador",
+      "raciones": 4, "peso_cocinado_g": 600,
+      "notas": "Contramuslo marinado con especias, limón y aceite; al horno. Pierde ~25 % de peso.",
+      "ingredientes": [
+        { "ref_tipo": "producto", "ref_id": "pollo-contramuslo-crudo", "gramos": 800, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "aove", "gramos": 20, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "limon", "gramos": 30, "modo": "crudo", "escala_pareja": false }
+      ]
+    },
+    {
+      "id": "verduras-asadas", "nombre": "Verduras asadas", "tipo": "componente", "estado": "borrador",
+      "raciones": 4, "peso_cocinado_g": 560,
+      "notas": "Parrillada ultracongelada al horno con un chorrito de aceite.",
+      "ingredientes": [
+        { "ref_tipo": "producto", "ref_id": "parrillada-verduras", "gramos": 800, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "aove", "gramos": 10, "modo": "crudo", "escala_pareja": false }
+      ]
+    },
+    {
+      "id": "bagel-proteico", "nombre": "Bagel proteico casero", "tipo": "plato", "estado": "borrador",
+      "raciones": 4, "peso_cocinado_g": 430,
+      "notas": "Masa de harina + postre lácteo +Proteínas; 4 bagels. Huevo para pincelar.",
+      "ingredientes": [
+        { "ref_tipo": "producto", "ref_id": "harina-trigo", "gramos": 200, "modo": "crudo", "escala_pareja": true },
+        { "ref_tipo": "producto", "ref_id": "postre-proteinas", "gramos": 200, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "huevo-campero", "gramos": 25, "modo": "crudo", "escala_pareja": false }
+      ]
+    },
+    {
+      "id": "bowl-pollo-shawarma", "nombre": "Bowl de pollo shawarma", "tipo": "plato", "estado": "borrador",
+      "raciones": 4, "peso_cocinado_g": 2010,
+      "notas": "Pollo shawarma + arroz cocido + verduras asadas + salsa de postre proteico. Peso cocinado = suma de los componentes.",
+      "ingredientes": [
+        { "ref_tipo": "receta", "ref_id": "pollo-shawarma", "gramos": 600, "escala_pareja": false },
+        { "ref_tipo": "receta", "ref_id": "arroz-cocido", "gramos": 810, "escala_pareja": true },
+        { "ref_tipo": "receta", "ref_id": "verduras-asadas", "gramos": 400, "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "postre-proteinas", "gramos": 200, "modo": "crudo", "escala_pareja": false }
+      ]
+    },
+    {
+      "id": "pasta-bolonesa", "nombre": "Pasta boloñesa (ternera + lenteja roja)", "tipo": "plato", "estado": "borrador",
+      "raciones": 4, "peso_cocinado_g": 2150,
+      "notas": "Salsa de ternera y lenteja roja con tomate; pasta cocida aparte (400 g crudo ≈ 880 g cocido).",
+      "ingredientes": [
+        { "ref_tipo": "producto", "ref_id": "picada-vacuno", "gramos": 400, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "lenteja-roja", "gramos": 100, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "tomate-triturado", "gramos": 800, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "cebollas", "gramos": 150, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "aove", "gramos": 15, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "spaghetti-armando", "gramos": 400, "modo": "crudo", "escala_pareja": true }
+      ]
+    },
+    {
+      "id": "hamburguesa-casera", "nombre": "Hamburguesa casera", "tipo": "plato", "estado": "borrador",
+      "raciones": 2, "peso_cocinado_g": 550,
+      "notas": "2 hamburguesas de 200 g de picada, pan bretzel y cheddar.",
+      "ingredientes": [
+        { "ref_tipo": "producto", "ref_id": "picada-vacuno", "gramos": 400, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "cebollas", "gramos": 60, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "pan-burger-bretzel", "gramos": 160, "modo": "crudo", "escala_pareja": true },
+        { "ref_tipo": "producto", "ref_id": "lonchas-cheddar", "gramos": 50, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "aove", "gramos": 5, "modo": "crudo", "escala_pareja": false }
+      ]
+    },
+    {
+      "id": "salmon-salteado-rustico", "nombre": "Salmón con salteado rústico", "tipo": "plato", "estado": "borrador",
+      "raciones": 2, "peso_cocinado_g": 560,
+      "notas": "2 lomos de salmón a la plancha + salteado rústico (lleva patata).",
+      "ingredientes": [
+        { "ref_tipo": "producto", "ref_id": "salmon-lomos", "gramos": 250, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "salteado-rustico", "gramos": 450, "modo": "crudo", "escala_pareja": true },
+        { "ref_tipo": "producto", "ref_id": "aove", "gramos": 10, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "limon", "gramos": 40, "modo": "crudo", "escala_pareja": false }
+      ]
+    },
+    {
+      "id": "curry-pollo-garbanzos", "nombre": "Curry de pollo + garbanzos + espinacas", "tipo": "plato", "estado": "borrador",
+      "raciones": 4, "peso_cocinado_g": 1900,
+      "notas": "Curry con bebida de almendras en lugar de nata. Se sirve con arroz cocido.",
+      "ingredientes": [
+        { "ref_tipo": "producto", "ref_id": "pollo-contramuslo-crudo", "gramos": 600, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "garbanzo-cocido", "gramos": 400, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "espinacas-porciones", "gramos": 250, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "bebida-almendras", "gramos": 200, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "cebollas", "gramos": 150, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "aove", "gramos": 15, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "receta", "ref_id": "arroz-cocido", "gramos": 540, "escala_pareja": true }
+      ]
+    },
+    {
+      "id": "pollo-teriyaki", "nombre": "Pollo teriyaki", "tipo": "plato", "estado": "borrador",
+      "raciones": 4, "peso_cocinado_g": 1250,
+      "notas": "Pechuga en salsa teriyaki casera (miel y soja), brócoli y arroz cocido.",
+      "ingredientes": [
+        { "ref_tipo": "producto", "ref_id": "pollo-pechuga-cruda", "gramos": 600, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "miel", "gramos": 25, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "brocoli-congelado", "gramos": 400, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "aove", "gramos": 10, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "receta", "ref_id": "arroz-cocido", "gramos": 540, "escala_pareja": true }
+      ]
+    },
+    {
+      "id": "tortilla-patata-proteica", "nombre": "Tortilla de patata proteica", "tipo": "plato", "estado": "borrador",
+      "raciones": 4, "peso_cocinado_g": 1000,
+      "notas": "Huevo + claras para subir proteína. Patata cocida al microondas o a la sartén con poco aceite.",
+      "ingredientes": [
+        { "ref_tipo": "producto", "ref_id": "patatas", "gramos": 500, "modo": "crudo", "escala_pareja": true },
+        { "ref_tipo": "producto", "ref_id": "huevo-campero", "gramos": 220, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "claras-liquidas", "gramos": 300, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "cebollas", "gramos": 150, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "aove", "gramos": 15, "modo": "crudo", "escala_pareja": false }
+      ]
+    },
+    {
+      "id": "pizza-bagel", "nombre": "Pizza bagel", "tipo": "plato", "estado": "borrador",
+      "raciones": 2, "peso_cocinado_g": 495,
+      "notas": "2 bagels proteicos (210 g cocinados) con tomate, mozzarella light y pavo.",
+      "ingredientes": [
+        { "ref_tipo": "receta", "ref_id": "bagel-proteico", "gramos": 210, "escala_pareja": true },
+        { "ref_tipo": "producto", "ref_id": "tomate-triturado", "gramos": 100, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "mozzarella-light", "gramos": 125, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "pechuga-pavo-lonchas", "gramos": 60, "modo": "crudo", "escala_pareja": false }
+      ]
+    },
+    {
+      "id": "crepes-proteicos", "nombre": "Crepes proteicos", "tipo": "plato", "estado": "borrador",
+      "raciones": 2, "peso_cocinado_g": 380,
+      "notas": "Harina, claras, leche y huevo. Sin rellenos.",
+      "ingredientes": [
+        { "ref_tipo": "producto", "ref_id": "harina-trigo", "gramos": 60, "modo": "crudo", "escala_pareja": true },
+        { "ref_tipo": "producto", "ref_id": "claras-liquidas", "gramos": 200, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "leche-semi", "gramos": 100, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "huevo-campero", "gramos": 55, "modo": "crudo", "escala_pareja": false }
+      ]
+    },
+    {
+      "id": "pancakes-platano", "nombre": "Pancakes de plátano", "tipo": "plato", "estado": "borrador",
+      "raciones": 2, "peso_cocinado_g": 330,
+      "notas": "Plátano, huevo y avena.",
+      "ingredientes": [
+        { "ref_tipo": "producto", "ref_id": "platano", "gramos": 200, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "huevo-campero", "gramos": 110, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "avena", "gramos": 60, "modo": "crudo", "escala_pareja": true }
+      ]
+    },
+    {
+      "id": "yogurcito", "nombre": "Yogurcito", "tipo": "plato", "estado": "borrador",
+      "raciones": 1, "peso_cocinado_g": 360,
+      "notas": "Postre +Proteínas con fresas, miel, chocolate 85 % y nueces. No se cocina: peso = suma.",
+      "ingredientes": [
+        { "ref_tipo": "producto", "ref_id": "postre-proteinas", "gramos": 250, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "fresas", "gramos": 80, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "miel", "gramos": 10, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "chocolate-85", "gramos": 10, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "nueces", "gramos": 10, "modo": "crudo", "escala_pareja": false }
+      ]
+    }
+  ]
+}
