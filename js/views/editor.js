@@ -1,6 +1,7 @@
 import { h, fmt, num, vaciar, aviso, hoja, insignia } from '../ui.js';
 import { datos, ctx, guardar } from '../store.js';
 import { totalesReceta } from '../calc.js';
+import { kcalRecetaTexto, kcalProductoTexto } from './etiquetas.js';
 
 /** Editor de receta (nueva si no hay id). */
 export function editorReceta(root, { id }) {
@@ -62,9 +63,9 @@ export function editorReceta(root, { id }) {
       const prods = [...datos.productos.values()].filter((x) => x.nombre.toLowerCase().includes(t));
       const item = (nombre, sub, alElegir, badge) => h('button', { class: 'opcion', type: 'button', onclick: () => { alElegir(); cerrar(); pintar(); } },
         h('span', {}, nombre), h('span', { class: 'sub' }, sub), badge);
-      recs.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es')).forEach((x) => lista.append(item(x.nombre, x.tipo === 'componente' ? 'componente' : 'receta',
+      recs.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es')).forEach((x) => lista.append(item(x.nombre, `${x.tipo === 'componente' ? 'componente · ' : ''}${kcalRecetaTexto(x)}`,
         () => r.ingredientes.push({ ref_tipo: 'receta', ref_id: x.id, gramos: 0, escala_pareja: false }))));
-      prods.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es')).slice(0, 80).forEach((x) => lista.append(item(x.nombre, `${fmt(x.kcal)} kcal/100 g`,
+      prods.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es')).slice(0, 80).forEach((x) => lista.append(item(x.nombre, kcalProductoTexto(x),
         () => r.ingredientes.push({ ref_tipo: 'producto', ref_id: x.id, gramos: 0, modo: 'crudo', escala_pareja: false }), insignia(x.estado))));
       if (!lista.children.length) lista.append(h('p', { class: 'vacio' }, 'Nada encontrado. Añade el producto en la pestaña Productos.'));
     };

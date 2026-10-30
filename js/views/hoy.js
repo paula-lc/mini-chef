@@ -2,9 +2,10 @@ import { h, fmt, eur, num, vaciar, aviso, hoja, macrosChips, montar } from '../u
 import { datos, ctx, guardar, borrar } from '../store.js';
 import { calcularRaciones, totalesReceta, esIndividual } from '../calc.js';
 import { faseCiclo, FASES, entrenoEl } from '../progreso.js';
+import { kcalRecetaTexto, kcalProductoTexto } from './etiquetas.js';
 import {
   COMIDAS, NOMBRE_COMIDA, fechaISO, sumarDias, fechaLarga, objetivosDia, totalesDia, estadoDia,
-  crearEntrada, macrosEntrada, crearPlantilla, aplicarPlantilla,
+  crearEntrada, macrosEntrada, crearPlantilla, aplicarPlantilla, recomendar,
 } from '../dia.js';
 
 const coma = (n) => (n == null ? '' : String(n).replace('.', ','));
@@ -42,7 +43,7 @@ function elegirIngrediente(alElegir) {
               ? { ref_tipo: 'receta', ref_id: it.id, gramos: 100, modo: 'crudo', escala_pareja: false }
               : { ref_tipo: 'producto', ref_id: it.id, gramos: it.unidad_g || 100, modo: 'crudo', escala_pareja: false });
           },
-        }, h('span', {}, it.nombre), h('span', { class: 'sub' }, x.c ? 'componente' : it.unidad_g ? `1 ud ≈ ${fmt(it.unidad_g)} g` : `${fmt(it.kcal)} kcal/100 g`)));
+        }, h('span', {}, it.nombre), h('span', { class: 'sub' }, x.c ? `componente · ${kcalRecetaTexto(it)}` : kcalProductoTexto(it))));
       }
     };
     q.addEventListener('input', pintarLista);
@@ -126,6 +127,13 @@ export function hoy(root, { fecha } = {}) {
   const abrirAñadir = (comida) => hoja(`Añadir a ${NOMBRE_COMIDA[comida].toLowerCase()}`, (cerrar) => {
     const cuerpo = h('div');
     let pestaña = 'receta';
+    // Lo que te queda hoy, para escoger mejor y recomendar.
+    const est0 = estadoDia(totalesDia(dia.entradas), objetivosDia(dia, datos.ajustes));
+    const recs = recomendar([...datos.recetas.values()], ctx, { kcalRestantes: est0.kcal_restantes, pFalta: est0.p_falta, kcalTupper: datos.ajustes.kcal_tupper });
+    const infoRec = new Map(recs.map((r) => [r.receta.id, r]));
+    const restan = h('p', { class: `resta-kcal${est0.kcal_restantes < 0 ? ' alerta' : ''}` },
+      est0.kcal_restantes >= 0 ? `Te quedan ${fmt(est0.kcal_restantes)} kcal` : `Te pasas ${fmt(-est0.kcal_restantes)} kcal`,
+      est0.p_falta > 0 && ` · faltan ${fmt(est0.p_falta)} g de proteína`);
 
     const meter = (entradas) => {
       dia.entradas.push(...entradas);
@@ -140,14 +148,25 @@ export function hoy(root, { fecha } = {}) {
       const pintarLista = () => {
         vaciar(lista);
         const t = q.value.trim().toLowerCase();
+        if (tipo === 'receta' && !t) {
+          const top = recs.filter((r) => r.encaja).slice(0, 4);
+          lista.append(h('h3', { class: 'subseccion' }, 'Te recomiendo'));
+          if (!top.length) lista.append(h('p', { class: 'ayuda' }, 'Ninguna receta cabe en lo que te queda: mejor algo ligero (café, yogur, fruta) o un producto suelto.'));
+          for (const r of top) {
+            lista.append(h('button', { class: 'opcion recomendada', type: 'button', onclick: () => paso2('receta', r.receta) },
+              h('span', {}, r.receta.nombre),
+              h('span', { class: 'sub' }, `${r.tupper ? 'tu tupper ≈ ' : ''}${fmt(r.kcal)} kcal · ${fmt(r.p)} g P · te quedarían ${fmt(-r.exceso)} kcal`)));
+          }
+          lista.append(h('h3', { class: 'subseccion' }, 'Todas'));
+        }
         const fuente = [...(tipo === 'receta' ? datos.recetas : datos.productos).values()]
           .filter((x) => x.nombre.toLowerCase().includes(t))
           .sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
         if (!fuente.length) lista.append(h('p', { class: 'vacio' }, 'Nada con ese nombre.'));
         for (const x of fuente) {
           const sub = tipo === 'receta'
-            ? (x.peso_cocinado_g > 0 ? `${x.tipo === 'componente' ? 'componente' : 'receta'} · peso cocinado ${fmt(x.peso_cocinado_g)} g` : 'falta el peso cocinado')
-            : `${fmt(x.kcal)} kcal/100 g`;
+            ? `${x.tipo === 'componente' ? 'componente · ' : ''}${kcalRecetaTexto(x)}${x.peso_cocinado_g > 0 || esIndividual(x) ? '' : ' · falta el peso cocinado'}${infoRec.has(x.id) ? (infoRec.get(x.id).encaja ? ' · ✓ cabe' : ` · ✗ +${fmt(infoRec.get(x.id).exceso)} kcal`) : ''}`
+            : kcalProductoTexto(x);
           lista.append(h('button', { class: 'opcion', type: 'button', onclick: () => paso2(tipo, x) }, h('span', {}, x.nombre), h('span', { class: 'sub' }, sub)));
         }
       };
@@ -250,7 +269,7 @@ export function hoy(root, { fecha } = {}) {
     const pestañas = h('div', { class: 'segmentos' },
       ...[['receta', 'Receta'], ['producto', 'Producto'], ['libre', 'Libre'], ['plantilla', 'Plantilla']].map(([p, t]) =>
         h('button', { class: 'seg' + (p === pestaña ? ' activo' : ''), type: 'button', dataset: { p }, onclick: () => abrir(p) }, t)));
-    const marco = h('div', {}, pestañas, cuerpo);
+    const marco = h('div', {}, restan, pestañas, cuerpo);
     elegir('receta');
     return marco;
   });

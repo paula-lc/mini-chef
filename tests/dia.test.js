@@ -146,3 +146,23 @@ test('ingredientes propios y extras en una ración', () => {
   const t = crearPlantilla('T', [g]);
   assert.equal(t.entradas[0].extras.length, 1);
 });
+
+test('recomendar según las kcal que quedan', async () => {
+  const { recomendar, racionSugerida } = await import('../js/dia.js');
+  recetas.set('ligero', { id: 'ligero', nombre: 'Ligero', raciones: 1, ingredientes: [{ ref_tipo: 'producto', ref_id: 'huevo', gramos: 100, modo: 'crudo' }] }); // 140 kcal, 12 g P
+  recetas.set('tostada', { id: 'tostada', nombre: 'Tostada', raciones: 1, ingredientes: [{ ref_tipo: 'producto', ref_id: 'arroz', gramos: 100, modo: 'crudo' }] }); // 350 kcal, 7 g P
+  const lista = [...recetas.values()];
+  // el guiso es de olla: un tupper de 550 kcal
+  assert.equal(racionSugerida(recetas.get('guiso'), ctx, 550).kcal, 550);
+  const r = recomendar(lista, ctx, { kcalRestantes: 400, pFalta: 30, kcalTupper: 550 });
+  const ids = r.map((x) => x.receta.id);
+  assert.ok(ids.indexOf('ligero') < ids.indexOf('tostada')); // con proteína por cubrir, gana la de más proteína por kcal
+  assert.equal(r.find((x) => x.receta.id === 'guiso').encaja, false);
+  assert.equal(r.find((x) => x.receta.id === 'guiso').exceso, 150);
+  assert.ok(!ids.includes('arrozcocido')); // los componentes no se recomiendan
+  // sin falta de proteína: la que más se acerca a lo que queda
+  const s = recomendar(lista, ctx, { kcalRestantes: 400, pFalta: 0, kcalTupper: 550 });
+  assert.equal(s[0].receta.id, 'tostada');
+  // con pocas kcal no cabe nada pesado
+  assert.ok(recomendar(lista, ctx, { kcalRestantes: 100, kcalTupper: 550 }).filter((x) => x.encaja).every((x) => x.kcal <= 100));
+});

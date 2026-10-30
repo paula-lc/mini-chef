@@ -3,6 +3,7 @@ import { datos, ctx, guardar } from '../store.js';
 import { nuevoId } from '../repo.js';
 import { fechaISO } from '../dia.js';
 import { listaCompra, resumenPresupuesto } from '../compra.js';
+import { kcalRecetaTexto, kcalProductoTexto } from './etiquetas.js';
 
 const LISTA_ID = 'actual';
 
@@ -43,7 +44,7 @@ export function compra(root) {
         lst.append(h('button', {
           class: 'opcion', type: 'button',
           onclick: () => { cerrar(); cambiar((l) => l.recetas.push({ ref_id: r.id, veces: 1 })); },
-        }, h('span', {}, r.nombre), h('span', { class: 'sub' }, r.tipo === 'componente' ? 'componente' : 'receta')));
+        }, h('span', {}, r.nombre), h('span', { class: 'sub' }, `${r.tipo === 'componente' ? 'componente · ' : ''}${kcalRecetaTexto(r)}`)));
       }
       if (!lst.firstChild) lst.append(h('p', { class: 'vacio' }, 'No hay más recetas.'));
     };
@@ -62,7 +63,7 @@ export function compra(root) {
         lst.append(h('button', {
           class: 'opcion', type: 'button',
           onclick: () => { cerrar(); cambiar((l) => l.extras.push({ id: nuevoId('x'), tipo: 'producto', ref_id: p.id, nombre: p.nombre, packs: 1 })); },
-        }, h('span', {}, p.nombre), h('span', { class: 'sub' }, `${p.tienda || ''} · ${p.precio != null ? eur(p.precio) : 'sin precio'}`)));
+        }, h('span', {}, p.nombre), h('span', { class: 'sub' }, `${kcalProductoTexto(p)} · ${p.precio != null ? eur(p.precio) : 'sin precio'}`)));
       }
     };
     q.addEventListener('input', pintarLista);

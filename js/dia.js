@@ -147,3 +147,39 @@ export function aplicarPlantilla(plantilla, ctx, { comida } = {}) {
   }
   return { entradas, omitidas };
 }
+
+/* ---------- Calorías para elegir (listas de selección) ---------- */
+/** kcal de una receta: total, por ración y si es de una sola ración. */
+export function kcalReceta(r, ctx) {
+  const total = totalesReceta(r, ctx).total.kcal;
+  const n = r.raciones > 0 ? r.raciones : null;
+  return { total, porRacion: n ? total / n : null, individual: esIndividual(r) };
+}
+
+/** Ración que se serviría de una receta: la entera si es individual, un tupper de `kcalTupper` si es de olla, o total/raciones. */
+export function racionSugerida(r, ctx, kcalTupper) {
+  const t = totalesReceta(r, ctx).total;
+  if (!(t.kcal > 0)) return null;
+  if (esIndividual(r)) return { kcal: t.kcal, p: t.p, tupper: false };
+  if (r.peso_cocinado_g > 0 && kcalTupper > 0) return { kcal: kcalTupper, p: (t.p * kcalTupper) / t.kcal, tupper: true };
+  if (r.raciones > 0) return { kcal: t.kcal / r.raciones, p: t.p / r.raciones, tupper: false };
+  return null;
+}
+
+/**
+ * Qué recetas encajan con las kcal que te quedan. Primero las que caben: si te falta proteína, las de más
+ * proteína por kcal; si no, las que más se acercan a lo que queda. Después las que se pasan, de menos a más.
+ * Los componentes (arroz cocido…) no se recomiendan como comida.
+ */
+export function recomendar(recetas, ctx, { kcalRestantes, pFalta = 0, kcalTupper }) {
+  const out = [];
+  for (const r of recetas) {
+    if (r.tipo === 'componente') continue;
+    const s = racionSugerida(r, ctx, kcalTupper);
+    if (!s) continue;
+    const exceso = Math.round(s.kcal - kcalRestantes);
+    out.push({ receta: r, kcal: Math.round(s.kcal), p: Math.round(s.p), encaja: exceso <= 0, exceso, tupper: s.tupper, densidad: s.p / s.kcal });
+  }
+  return out.sort((a, b) => (b.encaja - a.encaja)
+    || (a.encaja ? (pFalta > 0 ? b.densidad - a.densidad : b.exceso - a.exceso) : a.exceso - b.exceso));
+}
