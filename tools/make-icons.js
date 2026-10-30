@@ -2,8 +2,8 @@
 import { deflateSync } from 'node:zlib';
 import { writeFileSync, mkdirSync } from 'node:fs';
 
-const FONDO = [198, 90, 58];
-const CREMA = [251, 245, 236];
+const FONDO = [157, 130, 201];
+const CREMA = [251, 229, 163];
 
 function crc32(buf) {
   let c, crc = ~0;
@@ -54,10 +54,10 @@ mkdirSync(dir, { recursive: true });
 for (const n of [192, 512]) writeFileSync(new URL(`icon-${n}.png`, dir), icono(n));
 
 writeFileSync(new URL('icon.svg', dir), `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#C65A3A"/>
-  <path d="M102 256h308a0 0 0 0 1 0 0 154 154 0 0 1-308 0z" fill="#FBF5EC"/>
-  <rect x="97" y="256" width="318" height="23" fill="#FBF5EC"/>
-  <g fill="#FBF5EC"><rect x="185" y="123" width="17" height="92" rx="8"/><rect x="247" y="123" width="17" height="92" rx="8"/><rect x="310" y="123" width="17" height="92" rx="8"/></g>
+  <rect width="512" height="512" fill="#9D82C9"/>
+  <path d="M102 256h308a0 0 0 0 1 0 0 154 154 0 0 1-308 0z" fill="#FBE5A3"/>
+  <rect x="97" y="256" width="318" height="23" fill="#FBE5A3"/>
+  <g fill="#FBE5A3"><rect x="185" y="123" width="17" height="92" rx="8"/><rect x="247" y="123" width="17" height="92" rx="8"/><rect x="310" y="123" width="17" height="92" rx="8"/></g>
 </svg>
 `);
 console.log('Iconos generados');

@@ -1,6 +1,6 @@
 // Service worker: la app funciona sin conexión. Sube VERSION cuando cambies archivos
 // para que los móviles descarguen la versión nueva.
-const VERSION = 'minichef-v1';
+const VERSION = 'minichef-v2';
 const ARCHIVOS = [
   './', 'index.html', 'manifest.webmanifest', 'css/styles.css',
   'js/app.js', 'js/calc.js', 'js/repo.js', 'js/store.js', 'js/ui.js',
