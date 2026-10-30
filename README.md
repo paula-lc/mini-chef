@@ -116,10 +116,10 @@ Para corregir muchos de golpe, filtra por **Pendientes** en la lista de producto
 
 ## Datos iniciales (semilla)
 
-- `data/products.json`: 57 productos. Cada uno guarda macros por 100 g, envase, escurrido, precio, €/kg,
+- `data/products.json`: 60 productos. Cada uno guarda macros por 100 g, envase, escurrido, precio, €/kg,
   `fuente` (`paula`, `etiqueta`, `off`, `estandar`), `estado` y `estimado`.
   La lista legible está en [docs/productos.md](docs/productos.md).
-- `data/recipes.json`: 12 recetas pedidas + 3 componentes, con **cantidades estimadas** (estado *borrador*).
+- `data/recipes.json`: 14 recetas + 3 componentes, con **cantidades estimadas** (estado *borrador*).
 - Se cargan una sola vez, la primera vez que abres la app. *Ajustes → Restaurar los que falten*
   recupera lo que borraste sin tocar lo que hayas editado.
 

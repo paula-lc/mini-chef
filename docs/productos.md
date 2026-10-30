@@ -57,3 +57,6 @@
 | Plátano | Frutería | 98 | 1.1 | 22 | 0.3 | 2.6 | 1000 | 1.90 | 1.90 | estandar | pendiente |
 | Aguacate | Frutería | 180 | 2 | 8.5 | 14.7 | 6.7 | 1000 | 5.00 | 5.00 | estandar | pendiente |
 | Fresas | Frutería | 38 | 0.7 | 7.5 | 0.3 | 2 | 500 | 2.50 | 5.00 | estandar | pendiente |
+| Bagels (pack de 4) | Mercadona | 260 | 10 | 50 | 1.5 | 2.5 | 380 | 1.75 | 4.61 | estandar | pendiente |
+| Café soluble | Mercadona | 210 | 14 | 37 | 0.5 | 0 | 100 | 3.20 | 32.00 | estandar | pendiente |
+| Edulcorante de sacarina | Mercadona | 0 | 0 | 0 | 0 | 0 | 100 | 1.10 | 11.00 | estandar | pendiente |

@@ -167,6 +167,25 @@
         { "ref_tipo": "producto", "ref_id": "chocolate-85", "gramos": 10, "modo": "crudo", "escala_pareja": false },
         { "ref_tipo": "producto", "ref_id": "nueces", "gramos": 10, "modo": "crudo", "escala_pareja": false }
       ]
+    },
+    {
+      "id": "cafe-cacao", "nombre": "Café con cacao y sacarina", "tipo": "plato", "estado": "borrador",
+      "raciones": 1, "peso_cocinado_g": 250,
+      "notas": "Estimado: 2 g de café soluble, 10 g de cacao puro y sacarina en una taza de 250 g. Si le echas leche o bebida vegetal, añádela como ingrediente.",
+      "ingredientes": [
+        { "ref_tipo": "producto", "ref_id": "cafe-soluble", "gramos": 2, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "cacao-puro", "gramos": 10, "modo": "crudo", "escala_pareja": false },
+        { "ref_tipo": "producto", "ref_id": "sacarina", "gramos": 0.3, "modo": "crudo", "escala_pareja": false }
+      ]
+    },
+    {
+      "id": "bagel-cottage", "nombre": "Bagel con cottage", "tipo": "plato", "estado": "borrador",
+      "raciones": 1, "peso_cocinado_g": 195,
+      "notas": "Estimado: 1 bagel (95 g) con 100 g de queso cottage.",
+      "ingredientes": [
+        { "ref_tipo": "producto", "ref_id": "bagel", "gramos": 95, "modo": "crudo", "escala_pareja": true },
+        { "ref_tipo": "producto", "ref_id": "cottage-valblu", "gramos": 100, "modo": "crudo", "escala_pareja": false }
+      ]
     }
   ]
 }

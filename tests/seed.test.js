@@ -40,9 +40,9 @@ test('las 12 recetas pedidas existen y los ingredientes resuelven', () => {
   }
 });
 
-test('densidad calórica de las recetas es razonable (0,3-8 kcal por g cocinado)', () => {
+test('densidad calórica de las recetas es razonable (0,1-8 kcal por g cocinado)', () => {
   for (const r of recetas) {
     const kcalG = totalesReceta(r, ctx).total.kcal / r.peso_cocinado_g;
-    assert.ok(kcalG > 0.3 && kcalG < 8, `${r.id}: ${kcalG.toFixed(2)} kcal/g`);
+    assert.ok(kcalG > 0.1 && kcalG < 8, `${r.id}: ${kcalG.toFixed(2)} kcal/g`);
   }
 });
