@@ -72,7 +72,8 @@ export function crearSync({
   /* ---------- Configuración y sesión ---------- */
   async function configurar({ url, key }) {
     await cargarEst();
-    url = String(url || '').trim().replace(/\/$/, '');
+    url = String(url || '').trim();
+    try { url = new URL(url).origin; } catch { /* se valida justo debajo */ } // acepta también la URL con /rest/v1/ al final
     key = String(key || '').trim();
     if (!/^https?:\/\/.+/.test(url) || key.length < 20) throw new Error('Pon la URL del proyecto (https://…supabase.co) y la clave anon');
     if (est.config?.url !== url) { est.sesion = null; est.cursor = null; est.cola = []; }

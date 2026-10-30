@@ -7,8 +7,8 @@ Sigue funcionando sin internet: los cambios se suben cuando vuelve la conexión.
 
 1. Entra en <https://supabase.com>, crea una cuenta y pulsa **New project** (plan *Free*). Ponle un nombre (p. ej. `mini-chef`), una contraseña de base de datos (guárdala) y la región más cercana (*West EU*).
 2. Cuando esté listo, abre **SQL Editor → New query**, pega el contenido de [`supabase.sql`](supabase.sql) y pulsa **Run**. Debe decir *Success*.
-3. **Authentication → Providers → Email**: desactiva **Confirm email** (así puedes entrar al momento) y guarda.
-4. **Project Settings → API**: copia la **Project URL** y la clave **anon public**. (La clave anon es pública por diseño: lo que protege tus datos es tu contraseña y las reglas de la tabla, que solo dejan ver las filas de cada usuaria.)
+3. **Authentication → Providers → Email**: comprueba que el proveedor **Email** esté **activado (Enable)** y desactiva **Confirm email** (así puedes entrar al momento). Guarda.
+4. **Project Settings → API**: copia la **Project URL** (solo `https://….supabase.co`, sin nada detrás) y la clave **anon public**. (La clave anon es pública por diseño: lo que protege tus datos es tu contraseña y las reglas de la tabla, que solo dejan ver las filas de cada usuaria.)
 
 ## 2. Conectar el primer dispositivo
 

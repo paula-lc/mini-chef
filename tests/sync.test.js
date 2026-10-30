@@ -216,3 +216,10 @@ test('sin sesión no se encola nada', async () => {
   assert.deepEqual(await a.sync.estado(), { configurado: true, conectado: false, email: null, pendientes: 0, ultima: null, error: null });
   assert.equal(await a.sync.sincronizar(), null);
 });
+
+test('la URL se limpia: acepta /rest/v1/ y barras finales', async () => {
+  const c = crearSync({ adaptador: adaptadorMemoria(), fetchFn: async () => ({}), programar: () => 0 });
+  await c.configurar({ url: ' https://demo.supabase.co/rest/v1/ ', key: 'k'.repeat(40) });
+  const { url } = JSON.parse(atob(await c.codigo()));
+  assert.equal(url, 'https://demo.supabase.co');
+});
